@@ -1,4 +1,4 @@
-FROM node:16.0.0-alpine3.13 AS base
+FROM node:16-alpine AS base
 
 ENV NODE_ENV=production
 
@@ -39,5 +39,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 COPY --from=builder /misskey/node_modules ./node_modules
 COPY --from=builder /misskey/built ./built
 COPY . ./
+
+VOLUME [ "/misskey/.config/" ]
 
 CMD ["npm", "run", "migrateandstart"]
