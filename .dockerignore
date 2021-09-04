@@ -1,5 +1,5 @@
 .autogen
-.git
+#.git
 .github
 .travis
 .vscode
