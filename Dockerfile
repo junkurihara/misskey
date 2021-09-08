@@ -30,3 +30,4 @@ COPY . ./
 VOLUME [ "/misskey/.config/" ]
 
 CMD ["npm", "run", "migrateandstart"]
+
