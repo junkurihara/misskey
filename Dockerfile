@@ -1,10 +1,12 @@
-FROM node:16.6.2-alpine3.13 AS base
+FROM node:16.13.0-alpine3.14 AS base
 
 ENV NODE_ENV=production
 
 WORKDIR /misskey
 
 ENV BUILD_DEPS autoconf automake file g++ gcc libc-dev libtool make nasm pkgconfig python3 zlib-dev git
+ENV RUNTIME_DEPS ffmpeg tini
+ENV NPM_DEV_WORKAROUND querystring js-yaml
 
 FROM base AS builder
 
@@ -12,15 +14,14 @@ COPY . ./
 
 RUN apk add --no-cache $BUILD_DEPS && \
     git submodule update --init && \
+    yarn add --dev $NPM_DEV_WORKAROUND && \
     yarn install && \
     yarn build && \
     rm -rf .git
 
 FROM base AS runner
 
-RUN apk add --no-cache \
-    ffmpeg \
-    tini
+RUN apk add --no-cache $RUNTIME_DEPS
 
 ENTRYPOINT ["/sbin/tini", "--"]
 
@@ -29,8 +30,6 @@ COPY --from=builder /misskey/built ./built
 COPY --from=builder /misskey/packages/backend/node_modules ./packages/backend/node_modules
 COPY --from=builder /misskey/packages/backend/built ./packages/backend/built
 COPY --from=builder /misskey/packages/client/node_modules ./packages/client/node_modules
-COPY --from=builder /misskey/packages/client/built ./packages/client/built
 COPY . ./
 
 CMD ["npm", "run", "migrateandstart"]
-
