@@ -4,7 +4,7 @@ ENV NODE_ENV=production
 
 WORKDIR /misskey
 
-ENV BUILD_DEPS autoconf automake file g++ gcc libc-dev libtool make nasm pkgconfig python3 zlib-dev git 
+ENV BUILD_DEPS autoconf automake file g++ gcc libc-dev libtool make nasm pkgconfig python3 zlib-dev git
 ENV RUNTIME_DEPS ffmpeg tini
 
 FROM base AS builder
@@ -33,4 +33,3 @@ COPY . ./
 VOLUME [ "/misskey/.config/" ]
 
 CMD ["npm", "run", "migrateandstart"]
-
