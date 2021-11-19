@@ -28,7 +28,6 @@ COPY --from=builder /misskey/built ./built
 COPY --from=builder /misskey/packages/backend/node_modules ./packages/backend/node_modules
 COPY --from=builder /misskey/packages/backend/built ./packages/backend/built
 COPY --from=builder /misskey/packages/client/node_modules ./packages/client/node_modules
-COPY --from=builder /misskey/packages/client/built ./packages/client/built
 COPY . ./
 
 VOLUME [ "/misskey/.config/" ]
