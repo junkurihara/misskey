@@ -15,24 +15,25 @@ export const meta = {
 	params: {
 		noteId: {
 			validator: $.type(ID),
-		}
+		},
 	},
 
 	errors: {
 		noSuchNote: {
 			message: 'No such note.',
 			code: 'NO_SUCH_NOTE',
-			id: '454170ce-9d63-4a43-9da1-ea10afe81e21'
+			id: '454170ce-9d63-4a43-9da1-ea10afe81e21',
 		},
 	},
 
 	res: {
 		type: 'object' as const,
 		optional: false as const, nullable: false as const,
-		ref: 'User'
-	}
+		ref: 'User',
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	await removePinned(user, ps.noteId).catch(e => {
 		if (e.id === 'b302d4cf-c050-400a-bbb3-be208681f40c') throw new ApiError(meta.errors.noSuchNote);
@@ -40,6 +41,6 @@ export default define(meta, async (ps, user) => {
 	});
 
 	return await Users.pack(user.id, user, {
-		detail: true
+		detail: true,
 	});
 });

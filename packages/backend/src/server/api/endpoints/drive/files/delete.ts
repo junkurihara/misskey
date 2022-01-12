@@ -16,24 +16,25 @@ export const meta = {
 	params: {
 		fileId: {
 			validator: $.type(ID),
-		}
+		},
 	},
 
 	errors: {
 		noSuchFile: {
 			message: 'No such file.',
 			code: 'NO_SUCH_FILE',
-			id: '908939ec-e52b-4458-b395-1025195cea58'
+			id: '908939ec-e52b-4458-b395-1025195cea58',
 		},
 
 		accessDenied: {
 			message: 'Access denied.',
 			code: 'ACCESS_DENIED',
-			id: '5eb8d909-2540-4970-90b8-dd6f86088121'
+			id: '5eb8d909-2540-4970-90b8-dd6f86088121',
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const file = await DriveFiles.findOne(ps.fileId);
 

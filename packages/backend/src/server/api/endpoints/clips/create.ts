@@ -12,25 +12,26 @@ export const meta = {
 
 	params: {
 		name: {
-			validator: $.str.range(1, 100)
+			validator: $.str.range(1, 100),
 		},
 
 		isPublic: {
-			validator: $.optional.bool
+			validator: $.optional.bool,
 		},
 
 		description: {
-			validator: $.optional.nullable.str.range(1, 2048)
-		}
+			validator: $.optional.nullable.str.range(1, 2048),
+		},
 	},
 
 	res: {
 		type: 'object' as const,
 		optional: false as const, nullable: false as const,
-		ref: 'Clip'
-	}
+		ref: 'Clip',
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const clip = await Clips.insert({
 		id: genId(),

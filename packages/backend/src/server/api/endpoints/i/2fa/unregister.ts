@@ -10,11 +10,12 @@ export const meta = {
 
 	params: {
 		password: {
-			validator: $.str
-		}
-	}
+			validator: $.str,
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const profile = await UserProfiles.findOneOrFail(user.id);
 
@@ -27,6 +28,6 @@ export default define(meta, async (ps, user) => {
 
 	await UserProfiles.update(user.id, {
 		twoFactorSecret: null,
-		twoFactorEnabled: false
+		twoFactorEnabled: false,
 	});
 });

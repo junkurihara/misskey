@@ -20,6 +20,7 @@ import { isDuplicateKeyValueError } from '@/misc/is-duplicate-key-value-error';
 import * as S3 from 'aws-sdk/clients/s3';
 import { getS3 } from './s3';
 import * as sharp from 'sharp';
+import { FILE_TYPE_BROWSERSAFE } from '@/const';
 
 const logger = driveLogger.createSubLogger('register', 'yellow');
 
@@ -49,6 +50,12 @@ async function save(file: DriveFile, path: string, name: string, type: string, h
 			if (type === 'image/vnd.mozilla.apng') ext = '.apng';
 		}
 
+		// 拡張子からContent-Typeを設定してそうな挙動を示すオブジェクトストレージ (upcloud?) も存在するので、
+		// 許可されているファイル形式でしか拡張子をつけない
+		if (!FILE_TYPE_BROWSERSAFE.includes(type)) {
+			ext = '';
+		}
+
 		const baseUrl = meta.objectStorageBaseUrl
 			|| `${ meta.objectStorageUseSSL ? 'https' : 'http' }://${ meta.objectStorageEndpoint }${ meta.objectStoragePort ? `:${meta.objectStoragePort}` : '' }/${ meta.objectStorageBucket }`;
 
@@ -66,7 +73,7 @@ async function save(file: DriveFile, path: string, name: string, type: string, h
 		//#region Uploads
 		logger.info(`uploading original: ${key}`);
 		const uploads = [
-			upload(key, fs.createReadStream(path), type, name)
+			upload(key, fs.createReadStream(path), type, name),
 		];
 
 		if (alts.webpublic) {
@@ -149,22 +156,22 @@ export async function generateAlts(path: string, type: string, generateWeb: bool
 			const thumbnail = await GenerateVideoThumbnail(path);
 			return {
 				webpublic: null,
-				thumbnail
+				thumbnail,
 			};
 		} catch (e) {
 			logger.warn(`GenerateVideoThumbnail failed: ${e}`);
 			return {
 				webpublic: null,
-				thumbnail: null
+				thumbnail: null,
 			};
 		}
 	}
 
-	if (!['image/jpeg', 'image/png', 'image/webp'].includes(type)) {
+	if (!['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'].includes(type)) {
 		logger.debug(`web image and thumbnail not created (not an required file)`);
 		return {
 			webpublic: null,
-			thumbnail: null
+			thumbnail: null,
 		};
 	}
 
@@ -179,14 +186,14 @@ export async function generateAlts(path: string, type: string, generateWeb: bool
 		if (isAnimated) {
 			return {
 				webpublic: null,
-				thumbnail: null
+				thumbnail: null,
 			};
 		}
 	} catch (e) {
 		logger.warn(`sharp failed: ${e}`);
 		return {
 			webpublic: null,
-			thumbnail: null
+			thumbnail: null,
 		};
 	}
 
@@ -201,7 +208,7 @@ export async function generateAlts(path: string, type: string, generateWeb: bool
 				webpublic = await convertSharpToJpeg(img, 2048, 2048);
 			} else if (['image/webp'].includes(type)) {
 				webpublic = await convertSharpToWebp(img, 2048, 2048);
-			} else if (['image/png'].includes(type)) {
+			} else if (['image/png', 'image/svg+xml'].includes(type)) {
 				webpublic = await convertSharpToPng(img, 2048, 2048);
 			} else {
 				logger.debug(`web image not created (not an required image)`);
@@ -220,7 +227,7 @@ export async function generateAlts(path: string, type: string, generateWeb: bool
 	try {
 		if (['image/jpeg', 'image/webp'].includes(type)) {
 			thumbnail = await convertSharpToJpeg(img, 498, 280);
-		} else if (['image/png'].includes(type)) {
+		} else if (['image/png', 'image/svg+xml'].includes(type)) {
 			thumbnail = await convertSharpToPngOrJpeg(img, 498, 280);
 		} else {
 			logger.debug(`thumbnail not created (not an required file)`);
@@ -241,6 +248,7 @@ export async function generateAlts(path: string, type: string, generateWeb: bool
  */
 async function upload(key: string, stream: fs.ReadStream | Buffer, type: string, filename?: string) {
 	if (type === 'image/apng') type = 'image/png';
+	if (!FILE_TYPE_BROWSERSAFE.includes(type)) type = 'application/octet-stream';
 
 	const meta = await fetchMeta();
 
@@ -258,7 +266,7 @@ async function upload(key: string, stream: fs.ReadStream | Buffer, type: string,
 	const s3 = getS3(meta);
 
 	const upload = s3.upload(params, {
-		partSize: s3.endpoint?.hostname === 'storage.googleapis.com' ? 500 * 1024 * 1024 : 8 * 1024 * 1024
+		partSize: s3.endpoint?.hostname === 'storage.googleapis.com' ? 500 * 1024 * 1024 : 8 * 1024 * 1024,
 	});
 
 	const result = await upload.promise();
@@ -361,7 +369,7 @@ export default async function(
 
 		const driveFolder = await DriveFolders.findOne({
 			id: folderId,
-			userId: user ? user.id : null
+			userId: user ? user.id : null,
 		});
 
 		if (driveFolder == null) throw new Error('folder-not-found');
@@ -436,7 +444,7 @@ export default async function(
 
 				file = await DriveFiles.findOne({
 					uri: file.uri,
-					userId: user ? user.id : null
+					userId: user ? user.id : null,
 				}) as DriveFile;
 			} else {
 				logger.error(e);

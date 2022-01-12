@@ -20,11 +20,12 @@ export const meta = {
 			usage: {
 				type: 'number' as const,
 				optional: false as const, nullable: false as const,
-			}
-		}
-	}
+			},
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const instance = await fetchMeta(true);
 
@@ -33,6 +34,6 @@ export default define(meta, async (ps, user) => {
 
 	return {
 		capacity: 1024 * 1024 * instance.localDriveCapacityMb,
-		usage: usage
+		usage: usage,
 	};
 });

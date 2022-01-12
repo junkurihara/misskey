@@ -7,9 +7,10 @@ export const meta = {
 	secure: true,
 
 	params: {
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const query = RegistryItems.createQueryBuilder('item')
 		.select('item.scope')

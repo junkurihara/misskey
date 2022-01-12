@@ -13,9 +13,10 @@ export const meta = {
 		reportId: {
 			validator: $.type(ID),
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const report = await AbuseUserReports.findOne(ps.reportId);
 

@@ -5,6 +5,7 @@ import { makePaginationQuery } from '../../common/make-pagination-query';
 import { Notes, Followings } from '@/models/index';
 import { generateVisibilityQuery } from '../../common/generate-visibility-query';
 import { generateMutedUserQuery } from '../../common/generate-muted-user-query';
+import { generateMutedInstanceQuery } from '../../common/generate-muted-instance-query';
 import { activeUsersChart } from '@/services/chart/index';
 import { Brackets } from 'typeorm';
 import { generateRepliesQuery } from '../../common/generate-replies-query';
@@ -66,16 +67,17 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'Note',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const hasFollowing = (await Followings.count({
 		where: {
 			followerId: user.id,
 		},
-		take: 1
+		take: 1,
 	})) !== 0;
 
 	//#region Construct query
@@ -100,6 +102,7 @@ export default define(meta, async (ps, user) => {
 	generateRepliesQuery(query, user);
 	generateVisibilityQuery(query, user);
 	generateMutedUserQuery(query, user);
+	generateMutedInstanceQuery(query, user);
 	generateMutedNoteQuery(query, user);
 	generateBlockedUserQuery(query, user);
 

@@ -11,14 +11,15 @@ export const meta = {
 
 	params: {
 		host: {
-			validator: $.str
-		}
-	}
+			validator: $.str,
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const files = await DriveFiles.find({
-		userHost: ps.host
+		userHost: ps.host,
 	});
 
 	for (const file of files) {

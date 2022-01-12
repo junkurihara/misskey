@@ -24,17 +24,18 @@ export const meta = {
 					},
 					{
 						type: 'number' as const,
-					}
-				]
-			}
+					},
+				],
+			},
 		},
 		example: [[
 			'example.com',
-			12
-		]]
-	}
+			12,
+		]],
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps) => {
 	const jobs = await inboxQueue.getJobs(['delayed']);
 

@@ -12,11 +12,12 @@ export const meta = {
 
 	params: {
 		password: {
-			validator: $.str
-		}
-	}
+			validator: $.str,
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const profile = await UserProfiles.findOneOrFail(user.id);
 
@@ -31,7 +32,7 @@ export default define(meta, async (ps, user) => {
 	const secret = generateUserToken();
 
 	await Users.update(user.id, {
-		token: secret
+		token: secret,
 	});
 
 	// Publish event

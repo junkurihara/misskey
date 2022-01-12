@@ -14,7 +14,7 @@ export const meta = {
 	params: {
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 10
+			default: 10,
 		},
 
 		sinceId: {
@@ -26,8 +26,8 @@ export const meta = {
 		},
 
 		type: {
-			validator: $.optional.str.match(/^[a-zA-Z\/\-*]+$/)
-		}
+			validator: $.optional.str.match(/^[a-zA-Z\/\-*]+$/),
+		},
 	},
 
 	res: {
@@ -37,10 +37,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'DriveFile',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const query = makePaginationQuery(DriveFiles.createQueryBuilder('file'), ps.sinceId, ps.untilId)
 		.andWhere('file.userId = :userId', { userId: user.id });

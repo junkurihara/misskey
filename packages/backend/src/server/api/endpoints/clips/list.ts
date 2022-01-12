@@ -14,11 +14,12 @@ export const meta = {
 		items: {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
-			ref: 'Clip'
-		}
-	}
+			ref: 'Clip',
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const clips = await Clips.find({
 		userId: me.id,

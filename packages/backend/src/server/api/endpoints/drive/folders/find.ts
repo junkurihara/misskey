@@ -12,7 +12,7 @@ export const meta = {
 
 	params: {
 		name: {
-			validator: $.str
+			validator: $.str,
 		},
 
 		parentId: {
@@ -28,15 +28,16 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'DriveFolder',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const folders = await DriveFolders.find({
 		name: ps.name,
 		userId: user.id,
-		parentId: ps.parentId
+		parentId: ps.parentId,
 	});
 
 	return await Promise.all(folders.map(folder => DriveFolders.pack(folder)));

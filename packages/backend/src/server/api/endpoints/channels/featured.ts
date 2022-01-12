@@ -13,10 +13,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'Channel',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const query = Channels.createQueryBuilder('channel')
 		.where('channel.lastNotedAt IS NOT NULL')

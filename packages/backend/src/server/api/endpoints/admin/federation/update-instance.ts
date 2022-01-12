@@ -11,15 +11,16 @@ export const meta = {
 
 	params: {
 		host: {
-			validator: $.str
+			validator: $.str,
 		},
 
 		isSuspended: {
-			validator: $.bool
+			validator: $.bool,
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const instance = await Instances.findOne({ host: toPuny(ps.host) });
 
@@ -28,6 +29,6 @@ export default define(meta, async (ps, me) => {
 	}
 
 	Instances.update({ host: toPuny(ps.host) }, {
-		isSuspended: ps.isSuspended
+		isSuspended: ps.isSuspended,
 	});
 });

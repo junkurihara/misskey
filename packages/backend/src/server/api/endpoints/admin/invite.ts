@@ -20,12 +20,13 @@ export const meta = {
 				optional: false as const, nullable: false as const,
 				example: '2ERUA5VR',
 				maxLength: 8,
-				minLength: 8
-			}
-		}
-	}
+				minLength: 8,
+			},
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async () => {
 	const code = rndstr({
 		length: 8,

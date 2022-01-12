@@ -14,13 +14,13 @@ export const meta = {
 	params: {
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 10
+			default: 10,
 		},
 
 		group: {
 			validator: $.optional.bool,
-			default: false
-		}
+			default: false,
+		},
 	},
 
 	res: {
@@ -30,10 +30,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'MessagingMessage',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const mute = await Mutings.find({
 		muterId: user.id,

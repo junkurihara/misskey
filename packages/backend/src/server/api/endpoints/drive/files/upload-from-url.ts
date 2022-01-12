@@ -12,7 +12,7 @@ export const meta = {
 
 	limit: {
 		duration: ms('1hour'),
-		max: 60
+		max: 60,
 	},
 
 	requireCredential: true as const,
@@ -48,16 +48,17 @@ export const meta = {
 		force: {
 			validator: $.optional.bool,
 			default: false,
-		}
-	}
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	uploadFromUrl(ps.url, user, ps.folderId, null, ps.isSensitive, ps.force, false, ps.comment).then(file => {
 		DriveFiles.pack(file, { self: true }).then(packedFile => {
 			publishMainStream(user.id, 'urlUploadFinished', {
 				marker: ps.marker,
-				file: packedFile
+				file: packedFile,
 			});
 		});
 	});

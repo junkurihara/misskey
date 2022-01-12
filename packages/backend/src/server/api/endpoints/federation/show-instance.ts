@@ -10,17 +10,18 @@ export const meta = {
 
 	params: {
 		host: {
-			validator: $.str
-		}
+			validator: $.str,
+		},
 	},
 
 	res: {
 		type: 'object' as const,
 		optional: false as const, nullable: false as const,
-		ref: 'FederationInstance'
-	}
+		ref: 'FederationInstance',
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const instance = await Instances
 		.findOne({ host: toPuny(ps.host) });

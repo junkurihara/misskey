@@ -10,7 +10,7 @@ export const meta = {
 	params: {
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 10
+			default: 10,
 		},
 
 		sinceId: {
@@ -29,10 +29,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'GalleryPost',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const query = makePaginationQuery(GalleryPosts.createQueryBuilder('post'), ps.sinceId, ps.untilId)
 		.innerJoinAndSelect('post.user', 'user');

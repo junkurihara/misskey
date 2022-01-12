@@ -27,11 +27,12 @@ export const meta = {
 		noSuchList: {
 			message: 'No such list.',
 			code: 'NO_SUCH_LIST',
-			id: '7bc05c21-1d7a-41ae-88f1-66820f4dc686'
+			id: '7bc05c21-1d7a-41ae-88f1-66820f4dc686',
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	// Fetch the list
 	const userList = await UserLists.findOne({

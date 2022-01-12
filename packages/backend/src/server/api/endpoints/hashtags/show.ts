@@ -12,7 +12,7 @@ export const meta = {
 	params: {
 		tag: {
 			validator: $.str,
-		}
+		},
 	},
 
 	res: {
@@ -25,11 +25,12 @@ export const meta = {
 		noSuchHashtag: {
 			message: 'No such hashtag.',
 			code: 'NO_SUCH_HASHTAG',
-			id: '110ee688-193e-4a3a-9ecf-c167b2e6981e'
-		}
-	}
+			id: '110ee688-193e-4a3a-9ecf-c167b2e6981e',
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const hashtag = await Hashtags.findOne({ name: normalizeForSearch(ps.tag) });
 	if (hashtag == null) {

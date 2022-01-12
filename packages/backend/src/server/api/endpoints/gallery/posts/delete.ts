@@ -21,11 +21,12 @@ export const meta = {
 		noSuchPost: {
 			message: 'No such post.',
 			code: 'NO_SUCH_POST',
-			id: 'ae52f367-4bd7-4ecd-afc6-5672fff427f5'
+			id: 'ae52f367-4bd7-4ecd-afc6-5672fff427f5',
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const post = await GalleryPosts.findOne({
 		id: ps.postId,

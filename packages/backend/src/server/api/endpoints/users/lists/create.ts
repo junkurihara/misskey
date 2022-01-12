@@ -13,8 +13,8 @@ export const meta = {
 
 	params: {
 		name: {
-			validator: $.str.range(1, 100)
-		}
+			validator: $.str.range(1, 100),
+		},
 	},
 
 	res: {
@@ -24,6 +24,7 @@ export const meta = {
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const userList = await UserLists.insert({
 		id: genId(),

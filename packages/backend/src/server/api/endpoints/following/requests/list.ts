@@ -18,26 +18,27 @@ export const meta = {
 				id: {
 					type: 'string' as const,
 					optional: false as const, nullable: false as const,
-					format: 'id'
+					format: 'id',
 				},
 				follower: {
 					type: 'object' as const,
 					optional: false as const, nullable: false as const,
-					ref: 'User'
+					ref: 'User',
 				},
 				followee: {
 					type: 'object' as const,
 					optional: false as const, nullable: false as const,
-					ref: 'User'
-				}
-			}
-		}
-	}
+					ref: 'User',
+				},
+			},
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const reqs = await FollowRequests.find({
-		followeeId: user.id
+		followeeId: user.id,
 	});
 
 	return await Promise.all(reqs.map(req => FollowRequests.pack(req)));

@@ -16,9 +16,10 @@ export const meta = {
 		analyze: {
 			validator: $.bool,
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const params: string[] = [];
 

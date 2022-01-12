@@ -13,9 +13,10 @@ export const meta = {
 		userId: {
 			validator: $.type(ID),
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps) => {
 	const user = await Users.findOne(ps.userId as string);
 
@@ -24,6 +25,6 @@ export default define(meta, async (ps) => {
 	}
 
 	await Users.update(user.id, {
-		isModerator: false
+		isModerator: false,
 	});
 });

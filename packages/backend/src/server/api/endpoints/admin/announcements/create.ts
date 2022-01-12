@@ -11,14 +11,14 @@ export const meta = {
 
 	params: {
 		title: {
-			validator: $.str.min(1)
+			validator: $.str.min(1),
 		},
 		text: {
-			validator: $.str.min(1)
+			validator: $.str.min(1),
 		},
 		imageUrl: {
-			validator: $.nullable.str.min(1)
-		}
+			validator: $.nullable.str.min(1),
+		},
 	},
 
 	res: {
@@ -52,20 +52,21 @@ export const meta = {
 			imageUrl: {
 				type: 'string' as const,
 				optional: false as const, nullable: true as const,
-			}
-		}
-	}
+			},
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps) => {
-	const announcement = await Announcements.save({
+	const announcement = await Announcements.insert({
 		id: genId(),
 		createdAt: new Date(),
 		updatedAt: null,
 		title: ps.title,
 		text: ps.text,
 		imageUrl: ps.imageUrl,
-	});
+	}).then(x => Announcements.findOneOrFail(x.identifiers[0]));
 
 	return announcement;
 });

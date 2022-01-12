@@ -12,7 +12,7 @@ export const meta = {
 	params: {
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 10
+			default: 10,
 		},
 
 		sinceId: {
@@ -21,10 +21,11 @@ export const meta = {
 
 		untilId: {
 			validator: $.optional.type(ID),
-		}
-	}
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const query = makePaginationQuery(Signins.createQueryBuilder('signin'), ps.sinceId, ps.untilId)
 		.andWhere(`signin.userId = :meId`, { meId: user.id });

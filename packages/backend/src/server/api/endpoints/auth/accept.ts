@@ -15,19 +15,20 @@ export const meta = {
 
 	params: {
 		token: {
-			validator: $.str
-		}
+			validator: $.str,
+		},
 	},
 
 	errors: {
 		noSuchSession: {
 			message: 'No such session.',
 			code: 'NO_SUCH_SESSION',
-			id: '9c72d8de-391a-43c1-9d06-08d29efde8df'
+			id: '9c72d8de-391a-43c1-9d06-08d29efde8df',
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	// Fetch token
 	const session = await AuthSessions
@@ -65,12 +66,12 @@ export default define(meta, async (ps, user) => {
 			appId: session.appId,
 			userId: user.id,
 			token: accessToken,
-			hash: hash
+			hash: hash,
 		});
 	}
 
 	// Update session
 	await AuthSessions.update(session.id, {
-		userId: user.id
+		userId: user.id,
 	});
 });

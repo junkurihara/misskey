@@ -21,7 +21,7 @@ export const meta = {
 
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 10
+			default: 10,
 		},
 
 		sinceId: {
@@ -30,7 +30,7 @@ export const meta = {
 
 		untilId: {
 			validator: $.optional.type(ID),
-		}
+		},
 	},
 
 	res: {
@@ -40,18 +40,19 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'Note',
-		}
+		},
 	},
 
 	errors: {
 		noSuchNote: {
 			message: 'No such note.',
 			code: 'NO_SUCH_NOTE',
-			id: '12908022-2e21-46cd-ba6a-3edaf6093f46'
-		}
-	}
+			id: '12908022-2e21-46cd-ba6a-3edaf6093f46',
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const note = await getNote(ps.noteId).catch(e => {
 		if (e.id === '9725d0ce-ba28-4dde-95a7-2cbb2c15de24') throw new ApiError(meta.errors.noSuchNote);

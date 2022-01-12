@@ -17,7 +17,7 @@ export const meta = {
 
 		offset: {
 			validator: $.optional.num.min(0),
-			default: 0
+			default: 0,
 		},
 	},
 
@@ -28,10 +28,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'Note',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const max = 30;
 	const day = 1000 * 60 * 60 * 24 * 3; // 3日前まで

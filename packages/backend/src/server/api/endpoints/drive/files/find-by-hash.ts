@@ -12,7 +12,7 @@ export const meta = {
 	params: {
 		md5: {
 			validator: $.str,
-		}
+		},
 	},
 
 	res: {
@@ -22,10 +22,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'DriveFile',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const files = await DriveFiles.find({
 		md5: ps.md5,

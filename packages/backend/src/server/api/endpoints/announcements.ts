@@ -12,12 +12,12 @@ export const meta = {
 	params: {
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 10
+			default: 10,
 		},
 
 		withUnreads: {
 			validator: $.optional.boolean,
-			default: false
+			default: false,
 		},
 
 		sinceId: {
@@ -67,12 +67,13 @@ export const meta = {
 				isRead: {
 					type: 'boolean' as const,
 					optional: false as const, nullable: false as const,
-				}
-			}
-		}
-	}
+				},
+			},
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const query = makePaginationQuery(Announcements.createQueryBuilder('announcement'), ps.sinceId, ps.untilId);
 
@@ -80,7 +81,7 @@ export default define(meta, async (ps, user) => {
 
 	if (user) {
 		const reads = (await AnnouncementReads.find({
-			userId: user.id
+			userId: user.id,
 		})).map(x => x.announcementId);
 
 		for (const announcement of announcements) {

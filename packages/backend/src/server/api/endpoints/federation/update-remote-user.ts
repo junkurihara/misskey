@@ -13,9 +13,10 @@ export const meta = {
 		userId: {
 			validator: $.type(ID),
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps) => {
 	const user = await getRemoteUser(ps.userId);
 	await updatePerson(user.uri!);

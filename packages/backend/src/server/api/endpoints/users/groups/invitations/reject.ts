@@ -21,11 +21,12 @@ export const meta = {
 		noSuchInvitation: {
 			message: 'No such invitation.',
 			code: 'NO_SUCH_INVITATION',
-			id: 'ad7471d4-2cd9-44b4-ac68-e7136b4ce656'
+			id: 'ad7471d4-2cd9-44b4-ac68-e7136b4ce656',
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	// Fetch the invitation
 	const invitation = await UserGroupInvitations.findOne({

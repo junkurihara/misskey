@@ -12,9 +12,10 @@ export const meta = {
 			validator: $.optional.arr($.str.match(/^[a-zA-Z0-9_]+$/)),
 			default: [],
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const query = RegistryItems.createQueryBuilder('item')
 		.where('item.domain IS NULL')

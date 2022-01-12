@@ -22,7 +22,7 @@ export const meta = {
 
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 5
+			default: 5,
 		},
 	},
 
@@ -33,10 +33,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'Channel',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const query = makePaginationQuery(Channels.createQueryBuilder(), ps.sinceId, ps.untilId)
 		.andWhere({ userId: me.id });

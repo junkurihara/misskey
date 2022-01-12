@@ -7,16 +7,17 @@ export const meta = {
 
 	requireCredential: true as const,
 
-	kind: 'write:notifications'
+	kind: 'write:notifications',
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	// Update documents
 	await Notifications.update({
 		notifieeId: user.id,
 		isRead: false,
 	}, {
-		isRead: true
+		isRead: true,
 	});
 
 	// 全ての通知を読みましたよというイベントを発行

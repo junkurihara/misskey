@@ -37,6 +37,7 @@ export const meta = {
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	// Generate secret
 	const secret = secureRndstr(32, true);
@@ -53,11 +54,11 @@ export default define(meta, async (ps, user) => {
 		description: ps.description,
 		permission,
 		callbackUrl: ps.callbackUrl,
-		secret: secret
+		secret: secret,
 	});
 
 	return await Apps.pack(app, null, {
 		detail: true,
-		includeSecret: true
+		includeSecret: true,
 	});
 });

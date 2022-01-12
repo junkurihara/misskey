@@ -25,11 +25,12 @@ export const meta = {
 		noSuchChannel: {
 			message: 'No such channel.',
 			code: 'NO_SUCH_CHANNEL',
-			id: '6f6c314b-7486-4897-8966-c04a66a02923'
+			id: '6f6c314b-7486-4897-8966-c04a66a02923',
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const channel = await Channels.findOne({
 		id: ps.channelId,

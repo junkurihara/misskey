@@ -15,9 +15,10 @@ export const meta = {
 		userId: {
 			validator: $.type(ID),
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const user = await Users.findOne(ps.userId as string);
 
@@ -26,7 +27,7 @@ export default define(meta, async (ps, me) => {
 	}
 
 	await Users.update(user.id, {
-		isSuspended: false
+		isSuspended: false,
 	});
 
 	insertModerationLog(me, 'unsuspend', {

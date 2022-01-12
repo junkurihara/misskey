@@ -18,9 +18,10 @@ export const meta = {
 		text: {
 			validator: $.str,
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps) => {
 	await sendEmail(ps.to, ps.subject, ps.text, ps.text);
 });

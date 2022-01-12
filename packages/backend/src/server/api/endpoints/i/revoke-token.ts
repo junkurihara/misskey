@@ -11,11 +11,12 @@ export const meta = {
 
 	params: {
 		tokenId: {
-			validator: $.type(ID)
-		}
-	}
+			validator: $.type(ID),
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const token = await AccessTokens.findOne(ps.tokenId);
 

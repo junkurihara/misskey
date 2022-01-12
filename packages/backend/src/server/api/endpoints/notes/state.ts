@@ -11,7 +11,7 @@ export const meta = {
 	params: {
 		noteId: {
 			validator: $.type(ID),
-		}
+		},
 	},
 
 	res: {
@@ -20,20 +20,21 @@ export const meta = {
 		properties: {
 			isFavorited: {
 				type: 'boolean' as const,
-				optional: false as const, nullable: false as const
+				optional: false as const, nullable: false as const,
 			},
 			isWatching: {
 				type: 'boolean' as const,
-				optional: false as const, nullable: false as const
+				optional: false as const, nullable: false as const,
 			},
 			isMutedThread: {
 				type: 'boolean' as const,
-				optional: false as const, nullable: false as const
+				optional: false as const, nullable: false as const,
 			},
-		}
-	}
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const note = await Notes.findOneOrFail(ps.noteId);
 
@@ -43,21 +44,21 @@ export default define(meta, async (ps, user) => {
 				userId: user.id,
 				noteId: note.id,
 			},
-			take: 1
+			take: 1,
 		}),
 		NoteWatchings.count({
 			where: {
 				userId: user.id,
 				noteId: note.id,
 			},
-			take: 1
+			take: 1,
 		}),
 		NoteThreadMutings.count({
 			where: {
 				userId: user.id,
 				threadId: note.threadId || note.id,
 			},
-			take: 1
+			take: 1,
 		}),
 	]);
 

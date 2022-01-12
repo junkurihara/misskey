@@ -21,17 +21,18 @@ export const meta = {
 		noSuchClip: {
 			message: 'No such clip.',
 			code: 'NO_SUCH_CLIP',
-			id: 'c3c5fe33-d62c-44d2-9ea5-d997703f5c20'
+			id: 'c3c5fe33-d62c-44d2-9ea5-d997703f5c20',
 		},
 	},
 
 	res: {
 		type: 'object' as const,
 		optional: false as const, nullable: false as const,
-		ref: 'Clip'
-	}
+		ref: 'Clip',
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	// Fetch the clip
 	const clip = await Clips.findOne({

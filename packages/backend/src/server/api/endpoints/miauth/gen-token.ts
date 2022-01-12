@@ -13,11 +13,11 @@ export const meta = {
 
 	params: {
 		session: {
-			validator: $.nullable.str
+			validator: $.nullable.str,
 		},
 
 		name: {
-			validator: $.nullable.optional.str
+			validator: $.nullable.optional.str,
 		},
 
 		description: {
@@ -39,12 +39,13 @@ export const meta = {
 		properties: {
 			token: {
 				type: 'string' as const,
-				optional: false as const, nullable: false as const
-			}
-		}
-	}
+				optional: false as const, nullable: false as const,
+			},
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	// Generate access token
 	const accessToken = secureRndstr(32, true);
@@ -67,6 +68,6 @@ export default define(meta, async (ps, user) => {
 	});
 
 	return {
-		token: accessToken
+		token: accessToken,
 	};
 });

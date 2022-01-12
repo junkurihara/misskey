@@ -42,17 +42,18 @@ export const meta = {
 					items: {
 						type: 'number' as const,
 						optional: false as const, nullable: false as const,
-					}
+					},
 				},
 				usersCount: {
 					type: 'number' as const,
 					optional: false as const, nullable: false as const,
-				}
-			}
-		}
-	}
+				},
+			},
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async () => {
 	const instance = await fetchMeta(true);
 	const hiddenTags = instance.hiddenTags.map(t => normalizeForSearch(t));
@@ -92,7 +93,7 @@ export default define(meta, async () => {
 			} else {
 				tags.push({
 					name: tag,
-					users: [note.userId]
+					users: [note.userId],
 				});
 			}
 		}
@@ -139,7 +140,7 @@ export default define(meta, async () => {
 	const stats = hots.map((tag, i) => ({
 		tag,
 		chart: countsLog.map(counts => counts[i]),
-		usersCount: totalCounts[i]
+		usersCount: totalCounts[i],
 	}));
 
 	return stats;

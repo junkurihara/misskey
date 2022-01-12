@@ -10,7 +10,7 @@ export const meta = {
 
 	params: {
 		key: {
-			validator: $.str
+			validator: $.str,
 		},
 
 		scope: {
@@ -23,11 +23,12 @@ export const meta = {
 		noSuchKey: {
 			message: 'No such key.',
 			code: 'NO_SUCH_KEY',
-			id: 'ac3ed68a-62f0-422b-a7bc-d5e09e8f6a6a'
+			id: 'ac3ed68a-62f0-422b-a7bc-d5e09e8f6a6a',
 		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const query = RegistryItems.createQueryBuilder('item')
 		.where('item.domain IS NULL')

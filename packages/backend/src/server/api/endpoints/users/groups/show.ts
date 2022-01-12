@@ -27,11 +27,12 @@ export const meta = {
 		noSuchGroup: {
 			message: 'No such group.',
 			code: 'NO_SUCH_GROUP',
-			id: 'ea04751e-9b7e-487b-a509-330fb6bd6b9b'
+			id: 'ea04751e-9b7e-487b-a509-330fb6bd6b9b',
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	// Fetch the group
 	const userGroup = await UserGroups.findOne({
@@ -44,7 +45,7 @@ export default define(meta, async (ps, me) => {
 
 	const joining = await UserGroupJoinings.findOne({
 		userId: me.id,
-		userGroupId: userGroup.id
+		userGroupId: userGroup.id,
 	});
 
 	if (joining == null && userGroup.userId !== me.id) {

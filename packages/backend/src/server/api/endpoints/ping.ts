@@ -16,10 +16,11 @@ export const meta = {
 				type: 'number' as const,
 				optional: false as const, nullable: false as const,
 			},
-		}
-	}
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async () => {
 	return {
 		pong: Date.now(),

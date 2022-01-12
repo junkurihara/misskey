@@ -8,9 +8,10 @@ export const meta = {
 	requireCredential: true as const,
 	requireModerator: true,
 
-	params: {}
+	params: {},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	destroy();
 

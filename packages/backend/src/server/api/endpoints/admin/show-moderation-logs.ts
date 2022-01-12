@@ -13,7 +13,7 @@ export const meta = {
 	params: {
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 10
+			default: 10,
 		},
 
 		sinceId: {
@@ -35,36 +35,37 @@ export const meta = {
 				id: {
 					type: 'string' as const,
 					optional: false as const, nullable: false as const,
-					format: 'id'
+					format: 'id',
 				},
 				createdAt: {
 					type: 'string' as const,
 					optional: false as const, nullable: false as const,
-					format: 'date-time'
+					format: 'date-time',
 				},
 				type: {
 					type: 'string' as const,
-					optional: false as const, nullable: false as const
+					optional: false as const, nullable: false as const,
 				},
 				info: {
 					type: 'object' as const,
-					optional: false as const, nullable: false as const
+					optional: false as const, nullable: false as const,
 				},
 				userId: {
 					type: 'string' as const,
 					optional: false as const, nullable: false as const,
-					format: 'id'
+					format: 'id',
 				},
 				user: {
 					type: 'object' as const,
 					optional: false as const, nullable: false as const,
-					ref: 'User'
-				}
-			}
-		}
-	}
+					ref: 'User',
+				},
+			},
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps) => {
 	const query = makePaginationQuery(ModerationLogs.createQueryBuilder('report'), ps.sinceId, ps.untilId);
 

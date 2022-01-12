@@ -13,10 +13,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'Page',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const query = Pages.createQueryBuilder('page')
 		.where('page.visibility = \'public\'')

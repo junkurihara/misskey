@@ -20,7 +20,7 @@ export const meta = {
 		offset: {
 			validator: $.optional.num.min(0),
 			default: 0,
-		}
+		},
 	},
 
 	res: {
@@ -29,10 +29,11 @@ export const meta = {
 		items: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps) => {
 	const hashtags = await Hashtags.createQueryBuilder('tag')
 		.where('tag.name like :q', { q: ps.query.toLowerCase() + '%' })

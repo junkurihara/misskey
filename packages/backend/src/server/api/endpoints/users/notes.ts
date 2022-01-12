@@ -9,6 +9,7 @@ import { Notes } from '@/models/index';
 import { generateMutedUserQuery } from '../../common/generate-muted-user-query';
 import { Brackets } from 'typeorm';
 import { generateBlockedUserQuery } from '../../common/generate-block-query';
+import { generateMutedInstanceQuery } from '../../common/generate-muted-instance-query';
 
 export const meta = {
 	tags: ['users', 'notes'],
@@ -71,18 +72,19 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'Note',
-		}
+		},
 	},
 
 	errors: {
 		noSuchUser: {
 			message: 'No such user.',
 			code: 'NO_SUCH_USER',
-			id: '27e494ba-2ac2-48e8-893b-10d4d8c2387b'
-		}
-	}
+			id: '27e494ba-2ac2-48e8-893b-10d4d8c2387b',
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	// Lookup user
 	const user = await getUser(ps.userId).catch(e => {
@@ -102,6 +104,7 @@ export default define(meta, async (ps, me) => {
 	generateVisibilityQuery(query, me);
 	if (me) generateMutedUserQuery(query, me, user);
 	if (me) generateBlockedUserQuery(query, me);
+	if (me) generateMutedInstanceQuery(query, me);
 
 	if (ps.withFiles) {
 		query.andWhere('note.fileIds != \'{}\'');

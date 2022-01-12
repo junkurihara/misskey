@@ -9,8 +9,8 @@ export const meta = {
 
 	params: {
 		emailAddress: {
-			validator: $.str
-		}
+			validator: $.str,
+		},
 	},
 
 	res: {
@@ -25,10 +25,11 @@ export const meta = {
 				type: 'string' as const,
 				optional: false as const, nullable: true as const,
 			},
-		}
-	}
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps) => {
 	return await validateEmailForAccount(ps.emailAddress);
 });

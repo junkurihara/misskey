@@ -9,11 +9,12 @@ export const meta = {
 
 	params: {
 		endpoint: {
-			validator: $.str
+			validator: $.str,
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	await SwSubscriptions.delete({
 		userId: user.id,

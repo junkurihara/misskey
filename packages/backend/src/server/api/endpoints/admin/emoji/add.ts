@@ -17,7 +17,7 @@ export const meta = {
 
 	params: {
 		fileId: {
-			validator: $.type(ID)
+			validator: $.type(ID),
 		},
 	},
 
@@ -25,11 +25,12 @@ export const meta = {
 		noSuchFile: {
 			message: 'No such file.',
 			code: 'MO_SUCH_FILE',
-			id: 'fc46b5a4-6b92-4c33-ac66-b806659bb5cf'
-		}
-	}
+			id: 'fc46b5a4-6b92-4c33-ac66-b806659bb5cf',
+		},
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const file = await DriveFiles.findOne(ps.fileId);
 
@@ -37,7 +38,7 @@ export default define(meta, async (ps, me) => {
 
 	const name = file.name.split('.')[0].match(/^[a-z0-9_]+$/) ? file.name.split('.')[0] : `_${rndstr('a-z0-9', 8)}_`;
 
-	const emoji = await Emojis.save({
+	const emoji = await Emojis.insert({
 		id: genId(),
 		updatedAt: new Date(),
 		name: name,
@@ -46,19 +47,19 @@ export default define(meta, async (ps, me) => {
 		aliases: [],
 		url: file.url,
 		type: file.type,
-	});
+	}).then(x => Emojis.findOneOrFail(x.identifiers[0]));
 
 	await getConnection().queryResultCache!.remove(['meta_emojis']);
 
 	publishBroadcastStream('emojiAdded', {
-		emoji: await Emojis.pack(emoji.id)
+		emoji: await Emojis.pack(emoji.id),
 	});
 
 	insertModerationLog(me, 'addEmoji', {
-		emojiId: emoji.id
+		emojiId: emoji.id,
 	});
 
 	return {
-		id: emoji.id
+		id: emoji.id,
 	};
 });

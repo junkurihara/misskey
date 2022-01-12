@@ -13,11 +13,12 @@ export const meta = {
 
 	params: {
 		password: {
-			validator: $.str
+			validator: $.str,
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const profile = await UserProfiles.findOneOrFail(user.id);
 	const userDetailed = await Users.findOneOrFail(user.id);
@@ -36,7 +37,7 @@ export default define(meta, async (ps, user) => {
 	await doPostSuspend(user).catch(e => {});
 
 	createDeleteAccountJob(user, {
-		soft: false
+		soft: false,
 	});
 
 	await Users.update(user.id, {

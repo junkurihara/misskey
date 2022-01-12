@@ -14,12 +14,13 @@ export const meta = {
 		userId: {
 			validator: $.type(ID),
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, me) => {
 	const files = await DriveFiles.find({
-		userId: ps.userId
+		userId: ps.userId,
 	});
 
 	for (const file of files) {

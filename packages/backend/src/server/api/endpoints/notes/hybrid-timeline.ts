@@ -8,6 +8,7 @@ import { Followings, Notes } from '@/models/index';
 import { Brackets } from 'typeorm';
 import { generateVisibilityQuery } from '../../common/generate-visibility-query';
 import { generateMutedUserQuery } from '../../common/generate-muted-user-query';
+import { generateMutedInstanceQuery } from '../../common/generate-muted-instance-query';
 import { activeUsersChart } from '@/services/chart/index';
 import { generateRepliesQuery } from '../../common/generate-replies-query';
 import { generateMutedNoteQuery } from '../../common/generate-muted-note-query';
@@ -68,18 +69,19 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'Note',
-		}
+		},
 	},
 
 	errors: {
 		stlDisabled: {
 			message: 'Hybrid timeline has been disabled.',
 			code: 'STL_DISABLED',
-			id: '620763f4-f621-4533-ab33-0577a1a3c342'
+			id: '620763f4-f621-4533-ab33-0577a1a3c342',
 		},
-	}
+	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const m = await fetchMeta();
 	if (m.disableLocalTimeline && !user.isAdmin && !user.isModerator) {
@@ -108,6 +110,7 @@ export default define(meta, async (ps, user) => {
 	generateRepliesQuery(query, user);
 	generateVisibilityQuery(query, user);
 	generateMutedUserQuery(query, user);
+	generateMutedInstanceQuery(query, user);
 	generateMutedNoteQuery(query, user);
 	generateBlockedUserQuery(query, user);
 

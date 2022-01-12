@@ -14,7 +14,7 @@ export const meta = {
 	params: {
 		limit: {
 			validator: $.optional.num.range(1, 100),
-			default: 10
+			default: 10,
 		},
 
 		sinceId: {
@@ -28,7 +28,7 @@ export const meta = {
 		folderId: {
 			validator: $.optional.nullable.type(ID),
 			default: null,
-		}
+		},
 	},
 
 	res: {
@@ -38,10 +38,11 @@ export const meta = {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
 			ref: 'DriveFolder',
-		}
+		},
 	},
 };
 
+// eslint-disable-next-line import/no-default-export
 export default define(meta, async (ps, user) => {
 	const query = makePaginationQuery(DriveFolders.createQueryBuilder('folder'), ps.sinceId, ps.untilId)
 		.andWhere('folder.userId = :userId', { userId: user.id });
