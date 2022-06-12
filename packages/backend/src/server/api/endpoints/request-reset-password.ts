@@ -10,7 +10,11 @@ import { genId } from '@/misc/gen-id.js';
 import { IsNull } from 'typeorm';
 
 export const meta = {
+	tags: ['reset password'],
+
 	requireCredential: false,
+
+	description: 'Request a users password to be reset.',
 
 	limit: {
 		duration: ms('1hour'),
@@ -33,7 +37,7 @@ export const paramDef = {
 
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps) => {
-	const user = await Users.findOne({
+	const user = await Users.findOneBy({
 		usernameLower: ps.username.toLowerCase(),
 		host: IsNull(),
 	});
@@ -43,7 +47,7 @@ export default define(meta, paramDef, async (ps) => {
 		return;
 	}
 
-	const profile = await UserProfiles.findOneOrFail(user.id);
+	const profile = await UserProfiles.findOneByOrFail({ userId: user.id });
 
 	// 合致するメアドが登録されていなかったら無視
 	if (profile.email !== ps.email) {

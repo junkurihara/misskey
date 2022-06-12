@@ -11,6 +11,8 @@ export const meta = {
 
 	kind: 'write:account',
 
+	description: 'Add a user to an existing list.',
+
 	errors: {
 		noSuchList: {
 			message: 'No such list.',
@@ -50,7 +52,7 @@ export const paramDef = {
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, me) => {
 	// Fetch the list
-	const userList = await UserLists.findOne({
+	const userList = await UserLists.findOneBy({
 		id: ps.listId,
 		userId: me.id,
 	});
@@ -67,7 +69,7 @@ export default define(meta, paramDef, async (ps, me) => {
 
 	// Check blocking
 	if (user.id !== me.id) {
-		const block = await Blockings.findOne({
+		const block = await Blockings.findOneBy({
 			blockerId: user.id,
 			blockeeId: me.id,
 		});
@@ -76,7 +78,7 @@ export default define(meta, paramDef, async (ps, me) => {
 		}
 	}
 
-	const exist = await UserListJoinings.findOne({
+	const exist = await UserListJoinings.findOneBy({
 		userListId: userList.id,
 		userId: user.id,
 	});

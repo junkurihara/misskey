@@ -8,6 +8,9 @@ import { ILocalUser } from '@/models/entities/user.js';
 import { genId } from '@/misc/gen-id.js';
 import { verifyLogin, hash } from '../2fa.js';
 import { randomBytes } from 'node:crypto';
+import { IsNull } from 'typeorm';
+import { limiter } from '../limiter.js';
+import { getIpHash } from '@/misc/get-ip-hash.js';
 
 export default async (ctx: Koa.Context) => {
 	ctx.set('Access-Control-Allow-Origin', config.url);
@@ -23,25 +26,40 @@ export default async (ctx: Koa.Context) => {
 		ctx.body = { error };
 	}
 
-	if (typeof username != 'string') {
+	try {
+		// not more than 1 attempt per second and not more than 10 attempts per hour
+		await limiter({ key: 'signin', duration: 60 * 60 * 1000, max: 10, minInterval: 1000 }, getIpHash(ctx.ip));
+	} catch (err) {
+		ctx.status = 429;
+		ctx.body = {
+			error: {
+				message: 'Too many failed attempts to sign in. Try again later.',
+				code: 'TOO_MANY_AUTHENTICATION_FAILURES',
+				id: '22d05606-fbcf-421a-a2db-b32610dcfd1b',
+			},
+		};
+		return;
+	}
+
+	if (typeof username !== 'string') {
 		ctx.status = 400;
 		return;
 	}
 
-	if (typeof password != 'string') {
+	if (typeof password !== 'string') {
 		ctx.status = 400;
 		return;
 	}
 
-	if (token != null && typeof token != 'string') {
+	if (token != null && typeof token !== 'string') {
 		ctx.status = 400;
 		return;
 	}
 
 	// Fetch user
-	const user = await Users.findOne({
+	const user = await Users.findOneBy({
 		usernameLower: username.toLowerCase(),
-		host: null,
+		host: IsNull(),
 	}) as ILocalUser;
 
 	if (user == null) {
@@ -58,7 +76,7 @@ export default async (ctx: Koa.Context) => {
 		return;
 	}
 
-	const profile = await UserProfiles.findOneOrFail(user.id);
+	const profile = await UserProfiles.findOneByOrFail({ userId: user.id });
 
 	// Compare password
 	const same = await bcrypt.compare(password, profile.password!);
@@ -123,7 +141,7 @@ export default async (ctx: Koa.Context) => {
 
 		const clientDataJSON = Buffer.from(body.clientDataJSON, 'hex');
 		const clientData = JSON.parse(clientDataJSON.toString('utf-8'));
-		const challenge = await AttestationChallenges.findOne({
+		const challenge = await AttestationChallenges.findOneBy({
 			userId: user.id,
 			id: body.challengeId,
 			registrationChallenge: false,
@@ -149,7 +167,7 @@ export default async (ctx: Koa.Context) => {
 			return;
 		}
 
-		const securityKey = await UserSecurityKeys.findOne({
+		const securityKey = await UserSecurityKeys.findOneBy({
 			id: Buffer.from(
 				body.credentialId
 					.replace(/-/g, '+')
@@ -191,7 +209,7 @@ export default async (ctx: Koa.Context) => {
 			return;
 		}
 
-		const keys = await UserSecurityKeys.find({
+		const keys = await UserSecurityKeys.findBy({
 			userId: user.id,
 		});
 

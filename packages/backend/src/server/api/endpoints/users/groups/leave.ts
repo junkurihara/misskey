@@ -9,6 +9,8 @@ export const meta = {
 
 	kind: 'write:user-groups',
 
+	description: 'Leave a group. The owner of a group can not leave. They must transfer ownership or delete the group instead.',
+
 	errors: {
 		noSuchGroup: {
 			message: 'No such group.',
@@ -35,7 +37,7 @@ export const paramDef = {
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, me) => {
 	// Fetch the group
-	const userGroup = await UserGroups.findOne({
+	const userGroup = await UserGroups.findOneBy({
 		id: ps.groupId,
 	});
 

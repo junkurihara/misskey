@@ -9,6 +9,8 @@ export const meta = {
 
 	requireCredential: false,
 
+	description: 'Show all reactions this user made.',
+
 	res: {
 		type: 'array',
 		optional: false, nullable: false,
@@ -43,7 +45,7 @@ export const paramDef = {
 
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, me) => {
-	const profile = await UserProfiles.findOneOrFail(ps.userId);
+	const profile = await UserProfiles.findOneByOrFail({ userId: ps.userId });
 
 	if (me == null || (me.id !== ps.userId && !profile.publicReactions)) {
 		throw new ApiError(meta.errors.reactionsNotPublic);

@@ -8,6 +8,8 @@ export const meta = {
 
 	kind: 'read:user-groups',
 
+	description: 'List the groups that the authenticated user is the owner of.',
+
 	res: {
 		type: 'array',
 		optional: false, nullable: false,
@@ -27,7 +29,7 @@ export const paramDef = {
 
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, me) => {
-	const userGroups = await UserGroups.find({
+	const userGroups = await UserGroups.findBy({
 		userId: me.id,
 	});
 

@@ -655,6 +655,7 @@ global: "グローバル"
 sent: "送信"
 hashtags: "ハッシュタグ"
 hide: "隠す"
+searchByGoogle: "探す"
 indefinitely: "無期限"
 _ad:
   back: "戻る"
@@ -798,7 +799,6 @@ _sfx:
   notification: "通知"
   chat: "チャット"
 _ago:
-  unknown: "わからん"
   future: "未来"
   justNow: "たった今"
   secondsAgo: "{n}秒前"
@@ -1201,6 +1201,9 @@ _notification:
     reaction: "リアクション"
     receiveFollowRequest: "フォロー許可してほしいみたいやで"
     followRequestAccepted: "フォローが受理されたで"
+  _actions:
+    reply: "返事"
+    renote: "Renote"
 _deck:
   alwaysShowMainColumn: "いつもメインカラムを表示"
   columnAlign: "カラムの寄せ"

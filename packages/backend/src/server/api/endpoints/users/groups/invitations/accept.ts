@@ -11,6 +11,8 @@ export const meta = {
 
 	kind: 'write:user-groups',
 
+	description: 'Join a group the authenticated user has been invited to.',
+
 	errors: {
 		noSuchInvitation: {
 			message: 'No such invitation.',
@@ -31,7 +33,7 @@ export const paramDef = {
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, user) => {
 	// Fetch the invitation
-	const invitation = await UserGroupInvitations.findOne({
+	const invitation = await UserGroupInvitations.findOneBy({
 		id: ps.invitationId,
 	});
 

@@ -13,6 +13,8 @@ export const meta = {
 
 	requireCredential: true,
 
+	description: 'File a report.',
+
 	errors: {
 		noSuchUser: {
 			message: 'No such user.',
@@ -67,10 +69,10 @@ export default define(meta, paramDef, async (ps, me) => {
 		reporterId: me.id,
 		reporterHost: null,
 		comment: ps.comment,
-	}).then(x => AbuseUserReports.findOneOrFail(x.identifiers[0]));
+	}).then(x => AbuseUserReports.findOneByOrFail(x.identifiers[0]));
 
 	// Publish event to moderators
-	setTimeout(async () => {
+	setImmediate(async () => {
 		const moderators = await Users.find({
 			where: [{
 				isAdmin: true,
@@ -94,5 +96,5 @@ export default define(meta, paramDef, async (ps, me) => {
 				sanitizeHtml(ps.comment),
 				sanitizeHtml(ps.comment));
 		}
-	}, 1);
+	});
 });

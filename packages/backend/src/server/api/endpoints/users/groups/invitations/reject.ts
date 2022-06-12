@@ -9,6 +9,8 @@ export const meta = {
 
 	kind: 'write:user-groups',
 
+	description: 'Delete an existing group invitation for the authenticated user without joining the group.',
+
 	errors: {
 		noSuchInvitation: {
 			message: 'No such invitation.',
@@ -29,7 +31,7 @@ export const paramDef = {
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, user) => {
 	// Fetch the invitation
-	const invitation = await UserGroupInvitations.findOne({
+	const invitation = await UserGroupInvitations.findOneBy({
 		id: ps.invitationId,
 	});
 

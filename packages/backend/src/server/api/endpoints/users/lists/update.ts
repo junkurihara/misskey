@@ -9,6 +9,8 @@ export const meta = {
 
 	kind: 'write:account',
 
+	description: 'Update the properties of a list.',
+
 	res: {
 		type: 'object',
 		optional: false, nullable: false,
@@ -36,7 +38,7 @@ export const paramDef = {
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, user) => {
 	// Fetch the list
-	const userList = await UserLists.findOne({
+	const userList = await UserLists.findOneBy({
 		id: ps.listId,
 		userId: user.id,
 	});

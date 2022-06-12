@@ -9,6 +9,8 @@ export const meta = {
 
 	kind: 'read:user-groups',
 
+	description: 'Show the properties of a group.',
+
 	res: {
 		type: 'object',
 		optional: false, nullable: false,
@@ -35,7 +37,7 @@ export const paramDef = {
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, me) => {
 	// Fetch the group
-	const userGroup = await UserGroups.findOne({
+	const userGroup = await UserGroups.findOneBy({
 		id: ps.groupId,
 	});
 
@@ -43,7 +45,7 @@ export default define(meta, paramDef, async (ps, me) => {
 		throw new ApiError(meta.errors.noSuchGroup);
 	}
 
-	const joining = await UserGroupJoinings.findOne({
+	const joining = await UserGroupJoinings.findOneBy({
 		userId: me.id,
 		userGroupId: userGroup.id,
 	});

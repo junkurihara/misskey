@@ -6,9 +6,10 @@
 
 import * as nestedProperty from 'nested-property';
 import Logger from '../logger.js';
-import { EntitySchema, getRepository, Repository, LessThan, Between } from 'typeorm';
+import { EntitySchema, Repository, LessThan, Between } from 'typeorm';
 import { dateUTC, isTimeSame, isTimeBefore, subtractTime, addTime } from '@/prelude/time.js';
 import { getChartInsertLock } from '@/misc/app-lock.js';
+import { db } from '@/db/postgre.js';
 
 const logger = new Logger('chart', 'white', process.env.NODE_ENV !== 'test');
 
@@ -90,27 +91,20 @@ type ToJsonSchema<S> = {
 };
 
 export function getJsonSchema<S extends Schema>(schema: S): ToJsonSchema<Unflatten<ChartResult<S>>> {
-	const object = {};
-	for (const [k, v] of Object.entries(schema)) {
-		nestedProperty.set(object, k, null);
-	}
+	const jsonSchema = {
+		type: 'object',
+		properties: {} as Record<string, unknown>,
+		required: [],
+	};
 
-	function f(obj: Record<string, null | Record<string, unknown>>) {
-		const jsonSchema = {
-			type: 'object',
-			properties: {} as Record<string, unknown>,
-			required: [],
+	for (const k in schema) {
+		jsonSchema.properties[k] = {
+			type: 'array',
+			items: { type: 'number' },
 		};
-		for (const [k, v] of Object.entries(obj)) {
-			jsonSchema.properties[k] = v === null ? {
-				type: 'array',
-				items: { type: 'number' },
-			} : f(v as Record<string, null | Record<string, unknown>>);
-		}
-		return jsonSchema;
 	}
 
-	return f(object) as ToJsonSchema<Unflatten<ChartResult<S>>>;
+	return jsonSchema as ToJsonSchema<Unflatten<ChartResult<S>>>;
 }
 
 /**
@@ -241,8 +235,8 @@ export default abstract class Chart<T extends Schema> {
 		this.schema = schema;
 
 		const { hour, day } = Chart.schemaToEntity(name, schema, grouped);
-		this.repositoryForHour = getRepository<{ id: number; group?: string | null; date: number; }>(hour);
-		this.repositoryForDay = getRepository<{ id: number; group?: string | null; date: number; }>(day);
+		this.repositoryForHour = db.getRepository<{ id: number; group?: string | null; date: number; }>(hour);
+		this.repositoryForDay = db.getRepository<{ id: number; group?: string | null; date: number; }>(day);
 	}
 
 	private convertRawRecord(x: RawRecord<T>): KVs<T> {
@@ -271,9 +265,10 @@ export default abstract class Chart<T extends Schema> {
 			span === 'day' ? this.repositoryForDay :
 			new Error('not happen') as never;
 
-		return repository.findOne(group ? {
-			group: group,
-		} : {}, {
+		return repository.findOne({
+			where: group ? {
+				group: group,
+			} : {},
 			order: {
 				date: -1,
 			},
@@ -297,7 +292,7 @@ export default abstract class Chart<T extends Schema> {
 			new Error('not happen') as never;
 
 		// 現在(=今のHour or Day)のログ
-		const currentLog = await repository.findOne({
+		const currentLog = await repository.findOneBy({
 			date: Chart.dateToTimestamp(current),
 			...(group ? { group: group } : {}),
 		}) as RawRecord<T> | undefined;
@@ -337,7 +332,7 @@ export default abstract class Chart<T extends Schema> {
 		const unlock = await getChartInsertLock(lockKey);
 		try {
 			// ロック内でもう1回チェックする
-			const currentLog = await repository.findOne({
+			const currentLog = await repository.findOneBy({
 				date: date,
 				...(group ? { group: group } : {}),
 			}) as RawRecord<T> | undefined;
@@ -356,7 +351,7 @@ export default abstract class Chart<T extends Schema> {
 				date: date,
 				...(group ? { group: group } : {}),
 				...columns,
-			}).then(x => repository.findOneOrFail(x.identifiers[0])) as RawRecord<T>;
+			}).then(x => repository.findOneByOrFail(x.identifiers[0])) as RawRecord<T>;
 
 			logger.info(`${this.name + (group ? `:${group}` : '')}(${span}): New commit created`);
 
@@ -598,9 +593,10 @@ export default abstract class Chart<T extends Schema> {
 		if (logs.length === 0) {
 			// もっとも新しいログを持ってくる
 			// (すくなくともひとつログが無いと隙間埋めできないため)
-			const recentLog = await repository.findOne(group ? {
-				group: group,
-			} : {}, {
+			const recentLog = await repository.findOne({
+				where: group ? {
+					group: group,
+				} : {},
 				order: {
 					date: -1,
 				},
@@ -615,9 +611,10 @@ export default abstract class Chart<T extends Schema> {
 			// 要求された範囲の最も古い箇所時点での最も新しいログを持ってきて末尾に追加する
 			// (隙間埋めできないため)
 			const outdatedLog = await repository.findOne({
-				date: LessThan(Chart.dateToTimestamp(gt)),
-				...(group ? { group: group } : {}),
-			}, {
+				where: {
+					date: LessThan(Chart.dateToTimestamp(gt)),
+					...(group ? { group: group } : {}),
+				},
 				order: {
 					date: -1,
 				},

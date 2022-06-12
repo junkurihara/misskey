@@ -20,6 +20,8 @@ export const meta = {
 
 	kind: 'write:drive',
 
+	description: 'Upload a new drive file.',
+
 	res: {
 		type: 'object',
 		optional: false, nullable: false,
@@ -48,7 +50,6 @@ export const paramDef = {
 } as const;
 
 // eslint-disable-next-line import/no-default-export
-// @ts-ignore
 export default define(meta, paramDef, async (ps, user, _, file, cleanup) => {
 	// Get 'name' parameter
 	let name = ps.name || file.originalname;

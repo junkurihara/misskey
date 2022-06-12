@@ -1,8 +1,8 @@
 import define from '../../define.js';
-import { getConnection } from 'typeorm';
 import { Meta } from '@/models/entities/meta.js';
 import { insertModerationLog } from '@/services/insert-moderation-log.js';
 import { DB_MAX_NOTE_TEXT_LENGTH } from '@/misc/hard-limits.js';
+import { db } from '@/db/postgre.js';
 
 export const meta = {
 	tags: ['admin'],
@@ -27,7 +27,7 @@ export const paramDef = {
 		blockedHosts: { type: 'array', nullable: true, items: {
 			type: 'string',
 		} },
-		themeColor: { type: 'string', nullable: true },
+		themeColor: { type: 'string', nullable: true, pattern: '^#[0-9a-fA-F]{6}$' },
 		mascotImageUrl: { type: 'string', nullable: true },
 		bannerUrl: { type: 'string', nullable: true },
 		errorImageUrl: { type: 'string', nullable: true },
@@ -396,12 +396,14 @@ export default define(meta, paramDef, async (ps, me) => {
 		set.deeplIsPro = ps.deeplIsPro;
 	}
 
-	await getConnection().transaction(async transactionalEntityManager => {
-		const meta = await transactionalEntityManager.findOne(Meta, {
+	await db.transaction(async transactionalEntityManager => {
+		const metas = await transactionalEntityManager.find(Meta, {
 			order: {
 				id: 'DESC',
 			},
 		});
+
+		const meta = metas[0];
 
 		if (meta) {
 			await transactionalEntityManager.update(Meta, meta.id, set);

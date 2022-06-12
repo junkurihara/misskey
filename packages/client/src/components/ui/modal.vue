@@ -1,5 +1,5 @@
 <template>
-<transition :name="$store.state.animation ? (type === 'drawer') ? 'modal-drawer' : (type === 'popup') ? 'modal-popup' : 'modal' : ''" :duration="$store.state.animation ? 200 : 0" appear @after-leave="emit('closed')" @enter="emit('opening')" @after-enter="childRendered">
+<transition :name="$store.state.animation ? (type === 'drawer') ? 'modal-drawer' : (type === 'popup') ? 'modal-popup' : 'modal' : ''" :duration="$store.state.animation ? 200 : 0" appear @after-leave="emit('closed')" @enter="emit('opening')" @after-enter="onOpened">
 	<div v-show="manualShowing != null ? manualShowing : showing" v-hotkey.global="keymap" class="qzhlnise" :class="{ drawer: type === 'drawer', dialog: type === 'dialog' || type === 'dialog:top', popup: type === 'popup' }" :style="{ zIndex, pointerEvents: (manualShowing != null ? manualShowing : showing) ? 'auto' : 'none', '--transformOrigin': transformOrigin }">
 		<div class="bg _modalBg" :class="{ transparent: transparentBg && (type === 'popup') }" :style="{ zIndex }" @click="onBgClick" @contextmenu.prevent.stop="() => {}"></div>
 		<div ref="content" class="content" :class="{ fixed, top: type === 'dialog:top' }" :style="{ zIndex }" @click.self="onBgClick">
@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<{
 }>(), {
 	manualShowing: null,
 	src: null,
-	anchor: { x: 'center', y: 'bottom' },
+	anchor: () => ({ x: 'center', y: 'bottom' }),
 	preferType: 'auto',
 	zPriority: 'low',
 	noOverlap: true,
@@ -48,6 +48,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
 	(ev: 'opening'): void;
+	(ev: 'opened'): void;
 	(ev: 'click'): void;
 	(ev: 'esc'): void;
 	(ev: 'close'): void;
@@ -106,7 +107,7 @@ const align = () => {
 	const popover = content.value!;
 	if (popover == null) return;
 
-	const rect = props.src.getBoundingClientRect();
+	const srcRect = props.src.getBoundingClientRect();
 	
 	const width = popover.offsetWidth;
 	const height = popover.offsetHeight;
@@ -114,8 +115,8 @@ const align = () => {
 	let left;
 	let top;
 
-	const x = rect.left + (fixed.value ? 0 : window.pageXOffset);
-	const y = rect.top + (fixed.value ? 0 : window.pageYOffset);
+	const x = srcRect.left + (fixed.value ? 0 : window.pageXOffset);
+	const y = srcRect.top + (fixed.value ? 0 : window.pageYOffset);
 
 	if (props.anchor.x === 'center') {
 		left = x + (props.src.offsetWidth / 2) - (width / 2);
@@ -140,7 +141,7 @@ const align = () => {
 		}
 
 		const underSpace = (window.innerHeight - MARGIN) - top;
-		const upperSpace = (rect.top - MARGIN);
+		const upperSpace = (srcRect.top - MARGIN);
 
 		// 画面から縦にはみ出る場合
 		if (top + height > (window.innerHeight - MARGIN)) {
@@ -164,7 +165,7 @@ const align = () => {
 		}
 
 		const underSpace = (window.innerHeight - MARGIN) - (top - window.pageYOffset);
-		const upperSpace = (rect.top - MARGIN);
+		const upperSpace = (srcRect.top - MARGIN);
 
 		// 画面から縦にはみ出る場合
 		if (top + height - window.pageYOffset > (window.innerHeight - MARGIN)) {
@@ -194,16 +195,16 @@ const align = () => {
 	let transformOriginX = 'center';
 	let transformOriginY = 'center';
 
-	if (top > rect.top + (fixed.value ? 0 : window.pageYOffset)) {
+	if (top >= srcRect.top + props.src.offsetHeight + (fixed.value ? 0 : window.pageYOffset)) {
 		transformOriginY = 'top';
-	} else if ((top + height) <= rect.top + (fixed.value ? 0 : window.pageYOffset)) {
+	} else if ((top + height) <= srcRect.top + (fixed.value ? 0 : window.pageYOffset)) {
 		transformOriginY = 'bottom';
 	}
 
-	if (left > rect.left + (fixed.value ? 0 : window.pageXOffset)) {
-		transformOriginY = 'left';
-	} else if ((left + width) <= rect.left + (fixed.value ? 0 : window.pageXOffset)) {
-		transformOriginY = 'right';
+	if (left >= srcRect.left + props.src.offsetWidth + (fixed.value ? 0 : window.pageXOffset)) {
+		transformOriginX = 'left';
+	} else if ((left + width) <= srcRect.left + (fixed.value ? 0 : window.pageXOffset)) {
+		transformOriginX = 'right';
 	}
 
 	transformOrigin.value = `${transformOriginX} ${transformOriginY}`;
@@ -212,7 +213,9 @@ const align = () => {
 	popover.style.top = top + 'px';
 };
 
-const childRendered = () => {
+const onOpened = () => {
+	emit('opened');
+
 	// モーダルコンテンツにマウスボタンが押され、コンテンツ外でマウスボタンが離されたときにモーダルバックグラウンドクリックと判定させないためにマウスイベントを監視しフラグ管理する
 	const el = content.value!.children[0];
 	el.addEventListener('mousedown', ev => {
@@ -234,10 +237,10 @@ onMounted(() => {
 		}
 		fixed.value = (type.value === 'drawer') || (getFixedContainer(props.src) != null);
 
-		await nextTick()
+		await nextTick();
 		
 		align();
-	}, { immediate: true, });
+	}, { immediate: true });
 
 	nextTick(() => {
 		const popover = content.value;

@@ -9,6 +9,8 @@ export const meta = {
 
 	requireCredential: false,
 
+	description: 'Search for a user by username and/or host.',
+
 	res: {
 		type: 'array',
 		optional: false, nullable: false,
@@ -28,7 +30,10 @@ export const paramDef = {
 		limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
 		detail: { type: 'boolean', default: true },
 	},
-	required: [],
+	anyOf: [
+		{ required: ['username'] },
+		{ required: ['host'] },
+	],
 } as const;
 
 // TODO: avatar,bannerをJOINしたいけどエラーになる

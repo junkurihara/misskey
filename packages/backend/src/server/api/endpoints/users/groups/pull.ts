@@ -10,6 +10,8 @@ export const meta = {
 
 	kind: 'write:user-groups',
 
+	description: 'Removes a specified user from a group. The owner can not be removed.',
+
 	errors: {
 		noSuchGroup: {
 			message: 'No such group.',
@@ -43,7 +45,7 @@ export const paramDef = {
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, me) => {
 	// Fetch the group
-	const userGroup = await UserGroups.findOne({
+	const userGroup = await UserGroups.findOneBy({
 		id: ps.groupId,
 		userId: me.id,
 	});

@@ -1,5 +1,6 @@
+import { ref } from 'vue';
 import { globalEvents } from '@/events';
-import * as tinycolor from 'tinycolor2';
+import tinycolor from 'tinycolor2';
 
 export type Theme = {
 	id: string;
@@ -10,30 +11,38 @@ export type Theme = {
 	props: Record<string, string>;
 };
 
-export const lightTheme: Theme = require('@/themes/_light.json5');
-export const darkTheme: Theme = require('@/themes/_dark.json5');
+import lightTheme from '@/themes/_light.json5';
+import darkTheme from '@/themes/_dark.json5';
 
 export const themeProps = Object.keys(lightTheme.props).filter(key => !key.startsWith('X'));
 
-export const builtinThemes = [
-	require('@/themes/l-light.json5'),
-	require('@/themes/l-coffee.json5'),
-	require('@/themes/l-apricot.json5'),
-	require('@/themes/l-rainy.json5'),
-	require('@/themes/l-vivid.json5'),
-	require('@/themes/l-cherry.json5'),
-	require('@/themes/l-sushi.json5'),
+export const getBuiltinThemes = () => Promise.all(
+	[
+		'l-light',
+		'l-coffee',
+		'l-apricot',
+		'l-rainy',
+		'l-vivid',
+		'l-cherry',
+		'l-sushi',
 
-	require('@/themes/d-dark.json5'),
-	require('@/themes/d-persimmon.json5'),
-	require('@/themes/d-astro.json5'),
-	require('@/themes/d-future.json5'),
-	require('@/themes/d-botanical.json5'),
-	require('@/themes/d-cherry.json5'),
-	require('@/themes/d-ice.json5'),
-	require('@/themes/d-pumpkin.json5'),
-	require('@/themes/d-black.json5'),
-] as Theme[];
+		'd-dark',
+		'd-persimmon',
+		'd-astro',
+		'd-future',
+		'd-botanical',
+		'd-cherry',
+		'd-ice',
+		'd-pumpkin',
+		'd-black',
+	].map(name => import(`../themes/${name}.json5`).then(({ default: _default }): Theme => _default))
+);
+
+export const getBuiltinThemesRef = () => {
+	const builtinThemes = ref<Theme[]>([]);
+	getBuiltinThemes().then(themes => builtinThemes.value = themes);
+	return builtinThemes;
+};
 
 let timeout = null;
 
@@ -51,14 +60,14 @@ export function applyTheme(theme: Theme, persist = true) {
 
 	if (_theme.base) {
 		const base = [lightTheme, darkTheme].find(x => x.id === _theme.base);
-		_theme.props = Object.assign({}, base.props, _theme.props);
+		if (base) _theme.props = Object.assign({}, base.props, _theme.props);
 	}
 
 	const props = compile(_theme);
 
 	for (const tag of document.head.children) {
 		if (tag.tagName === 'META' && tag.getAttribute('name') === 'theme-color') {
-			tag.setAttribute('content', props['html']);
+			tag.setAttribute('content', props['htmlThemeColor']);
 			break;
 		}
 	}

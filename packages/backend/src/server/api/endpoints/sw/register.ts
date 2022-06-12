@@ -8,6 +8,8 @@ export const meta = {
 
 	requireCredential: true,
 
+	description: 'Register to receive push notifications.',
+
 	res: {
 		type: 'object',
 		optional: false, nullable: false,
@@ -38,7 +40,7 @@ export const paramDef = {
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, user) => {
 	// if already subscribed
-	const exist = await SwSubscriptions.findOne({
+	const exist = await SwSubscriptions.findOneBy({
 		userId: user.id,
 		endpoint: ps.endpoint,
 		auth: ps.auth,

@@ -25,6 +25,7 @@
 				<FormSwitch v-if="user.host == null && $i.isAdmin && (moderator || !user.isAdmin)" v-model="moderator" class="_formBlock" @update:modelValue="toggleModerator">{{ $ts.moderator }}</FormSwitch>
 				<FormSwitch v-model="silenced" class="_formBlock" @update:modelValue="toggleSilence">{{ $ts.silence }}</FormSwitch>
 				<FormSwitch v-model="suspended" class="_formBlock" @update:modelValue="toggleSuspend">{{ $ts.suspend }}</FormSwitch>
+				{{ $ts.reflectMayTakeTime }}
 				<FormButton v-if="user.host == null && iAmModerator" class="_formBlock" @click="resetPassword"><i class="fas fa-key"></i> {{ $ts.resetPassword }}</FormButton>
 			</FormSection>
 
@@ -52,6 +53,9 @@
 
 				<FormButton v-if="user.host != null" class="_formBlock" @click="updateRemoteUser"><i class="fas fa-sync"></i> {{ $ts.updateRemoteUser }}</FormButton>
 			</FormSection>
+
+			<MkObjectView v-if="info && $i.isAdmin" tall :value="info">
+			</MkObjectView>
 
 			<MkObjectView tall :value="user">
 			</MkObjectView>
@@ -231,10 +235,10 @@ export default defineComponent({
 				await os.api('admin/delete-all-files-of-a-user', { userId: this.user.id });
 				os.success();
 			};
-			await process().catch(e => {
+			await process().catch(err => {
 				os.alert({
 					type: 'error',
-					text: e.toString()
+					text: err.toString(),
 				});
 			});
 			await this.refreshUser();

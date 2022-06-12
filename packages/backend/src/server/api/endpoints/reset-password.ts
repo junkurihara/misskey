@@ -5,7 +5,11 @@ import { Users, UserProfiles, PasswordResetRequests } from '@/models/index.js';
 import { ApiError } from '../error.js';
 
 export const meta = {
+	tags: ['reset password'],
+
 	requireCredential: false,
+
+	description: 'Complete the password reset that was previously requested.',
 
 	errors: {
 
@@ -23,7 +27,7 @@ export const paramDef = {
 
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, user) => {
-	const req = await PasswordResetRequests.findOneOrFail({
+	const req = await PasswordResetRequests.findOneByOrFail({
 		token: ps.token,
 	});
 

@@ -1,6 +1,6 @@
-FROM node:16-alpine AS base
+FROM node:18-alpine AS base
 
-ENV NODE_ENV=production
+ARG NODE_ENV=production
 
 WORKDIR /misskey
 
@@ -12,10 +12,10 @@ FROM base AS builder
 COPY . ./
 
 RUN apk add --no-cache $BUILD_DEPS && \
-    git submodule update --init && \
-    yarn install && \
-    yarn build && \
-    rm -rf .git
+	git submodule update --init && \
+	yarn install && \
+	yarn build && \
+	rm -rf .git
 
 FROM base AS runner
 
@@ -32,4 +32,5 @@ COPY . ./
 
 VOLUME [ "/misskey/.config/" ]
 
+ENV NODE_ENV=production
 CMD ["npm", "run", "migrateandstart"]

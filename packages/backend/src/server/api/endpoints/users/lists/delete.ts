@@ -9,6 +9,8 @@ export const meta = {
 
 	kind: 'write:account',
 
+	description: 'Delete an existing list of users.',
+
 	errors: {
 		noSuchList: {
 			message: 'No such list.',
@@ -28,7 +30,7 @@ export const paramDef = {
 
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, user) => {
-	const userList = await UserLists.findOne({
+	const userList = await UserLists.findOneBy({
 		id: ps.listId,
 		userId: user.id,
 	});

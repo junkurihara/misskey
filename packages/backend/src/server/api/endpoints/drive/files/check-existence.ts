@@ -8,6 +8,8 @@ export const meta = {
 
 	kind: 'read:drive',
 
+	description: 'Check if a given file exists.',
+
 	res: {
 		type: 'boolean',
 		optional: false, nullable: false,
@@ -24,7 +26,7 @@ export const paramDef = {
 
 // eslint-disable-next-line import/no-default-export
 export default define(meta, paramDef, async (ps, user) => {
-	const file = await DriveFiles.findOne({
+	const file = await DriveFiles.findOneBy({
 		md5: ps.md5,
 		userId: user.id,
 	});
