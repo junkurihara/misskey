@@ -1,25 +1,28 @@
-FROM node:18-alpine AS base
+FROM node:18-slim AS base
 
 ARG NODE_ENV=production
 
 WORKDIR /misskey
 
-ENV BUILD_DEPS autoconf automake file g++ gcc libc-dev libtool make nasm pkgconfig python3 zlib-dev git
+ENV BUILD_DEPS autoconf automake file g++ gcc libc-dev libtool make nasm python3 git pkg-config zlib1g-dev
 ENV RUNTIME_DEPS ffmpeg tini
 
 FROM base AS builder
 
 COPY . ./
 
-RUN apk add --no-cache $BUILD_DEPS && \
+RUN apt-get update && \
+	apt-get -qy dist-upgrade &&\
+	apt-get install -qy  $BUILD_DEPS && \
 	git submodule update --init && \
 	yarn install && \
 	yarn build && \
-	rm -rf .git
+	rm -rf .git && \
+	apt-get -qy clean
 
 FROM base AS runner
 
-RUN apk add --no-cache $RUNTIME_DEPS
+RUN apt-get update && apt-get -qy install $RUNTIME_DEPS && apt-get -qy clean
 
 ENTRYPOINT ["/sbin/tini", "--"]
 
