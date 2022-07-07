@@ -24,7 +24,7 @@ FROM base AS runner
 
 RUN apt-get update && apt-get -qy install $RUNTIME_DEPS && apt-get -qy clean
 
-ENTRYPOINT ["/sbin/tini", "--"]
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 COPY --from=builder /misskey/node_modules ./node_modules
 COPY --from=builder /misskey/built ./built
