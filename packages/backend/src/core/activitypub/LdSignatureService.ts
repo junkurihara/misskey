@@ -1,5 +1,5 @@
 import * as crypto from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpRequestService } from '@/core/HttpRequestService.js';
 import { bindThis } from '@/decorators.js';
 import { CONTEXTS } from './misc/contexts.js';
@@ -9,7 +9,7 @@ import { CONTEXTS } from './misc/contexts.js';
 class LdSignature {
 	public debug = false;
 	public preLoad = true;
-	public loderTimeout = 10 * 1000;
+	public loderTimeout = 5000;
 
 	constructor(
 		private httpRequestService: HttpRequestService,
@@ -84,7 +84,11 @@ class LdSignature {
 	@bindThis
 	public async normalize(data: any) {
 		const customLoader = this.getLoader();
-		return 42;
+		// XXX: Importing jsonld dynamically since Jest frequently fails to import it statically
+		// https://github.com/misskey-dev/misskey/pull/9894#discussion_r1103753595
+		return (await import('jsonld')).default.normalize(data, {
+			documentLoader: customLoader,
+		});
 	}
 
 	@bindThis
@@ -115,19 +119,12 @@ class LdSignature {
 
 	@bindThis
 	private async fetchDocument(url: string) {
-		const json = await this.httpRequestService.fetch(
-			url,
-			{
-				headers: {
-					Accept: 'application/ld+json, application/json',
-				},
-				// TODO
-				//timeout: this.loderTimeout,
+		const json = await this.httpRequestService.send(url, {
+			headers: {
+				Accept: 'application/ld+json, application/json',
 			},
-			{
-				noOkError: true,
-			}
-		).then(res => {
+			timeout: this.loderTimeout,
+		}, { throwErrorWhenResponseNotOk: false }).then(res => {
 			if (!res.ok) {
 				throw `${res.status} ${res.statusText}`;
 			} else {

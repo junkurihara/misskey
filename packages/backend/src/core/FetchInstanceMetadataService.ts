@@ -190,7 +190,9 @@ export class FetchInstanceMetadataService {
 	
 		const faviconUrl = url + '/favicon.ico';
 	
-		const favicon = await this.httpRequestService.fetch(faviconUrl, {}, { noOkError: true });
+		const favicon = await this.httpRequestService.send(faviconUrl, {
+			method: 'HEAD',
+		}, { throwErrorWhenResponseNotOk: false });
 	
 		if (favicon.ok) {
 			return faviconUrl;

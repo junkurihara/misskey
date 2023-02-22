@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { In, IsNull, MoreThan } from 'typeorm';
+import { IsNull, MoreThan } from 'typeorm';
 import { DI } from '@/di-symbols.js';
 import type { Config } from '@/config.js';
 import type Logger from '@/logger.js';
@@ -57,8 +57,15 @@ export class AggregateRetentionProcessorService {
 			usersCount: targetUserIds.length,
 		});
 
+		// 今日活動したユーザーを全て取得
+		const activeUsers = await this.usersRepository.findBy({
+			host: IsNull(),
+			lastActiveDate: MoreThan(new Date(Date.now() - (1000 * 60 * 60 * 24))),
+		});
+		const activeUsersIds = activeUsers.map(u => u.id);
+
 		for (const record of pastRecords) {
-			const retention = record.userIds.filter(id => targetUserIds.includes(id)).length;
+			const retention = record.userIds.filter(id => activeUsersIds.includes(id)).length;
 
 			const data = deepClone(record.data);
 			data[dateKey] = retention;

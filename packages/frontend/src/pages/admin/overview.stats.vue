@@ -45,7 +45,7 @@
 				<div class="icon"><i class="ti ti-access-point"></i></div>
 				<div class="body">
 					<div class="value">
-						<MkNumber :value="stats.onlineUsersCount" style="margin-right: 0.5em;"/>
+						<MkNumber :value="onlineUsersCount" style="margin-right: 0.5em;"/>
 					</div>
 					<div class="label">Online</div>
 				</div>
@@ -56,10 +56,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue';
-import MkMiniChart from '@/components/MkMiniChart.vue';
+import { onMounted } from 'vue';
 import * as os from '@/os';
-import number from '@/filters/number';
 import MkNumberDiff from '@/components/MkNumberDiff.vue';
 import MkNumber from '@/components/MkNumber.vue';
 import { i18n } from '@/i18n';

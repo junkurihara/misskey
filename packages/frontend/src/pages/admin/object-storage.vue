@@ -38,7 +38,7 @@
 							<template #label>Access key</template>
 						</MkInput>
 
-						<MkInput v-model="objectStorageSecretKey">
+						<MkInput v-model="objectStorageSecretKey" type="password">
 							<template #prefix><i class="ti ti-key"></i></template>
 							<template #label>Secret key</template>
 						</MkInput>
@@ -75,7 +75,6 @@ import MkSwitch from '@/components/MkSwitch.vue';
 import MkInput from '@/components/MkInput.vue';
 import FormSuspense from '@/components/form/suspense.vue';
 import FormSplit from '@/components/form/split.vue';
-import FormSection from '@/components/form/section.vue';
 import * as os from '@/os';
 import { fetchInstance } from '@/instance';
 import { i18n } from '@/i18n';
