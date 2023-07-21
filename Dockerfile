@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.4
-ARG NODE_VERSION=18
+ARG NODE_VERSION=20
 
 # build assets & compile TypeScript
 
