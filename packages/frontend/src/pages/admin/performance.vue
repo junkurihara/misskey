@@ -10,28 +10,28 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<FormSuspense :p="init">
 			<div class="_gaps">
 				<div class="_panel" style="padding: 16px;">
-					<MkSwitch v-model="enableServerMachineStats">
+					<MkSwitch v-model="enableServerMachineStats" @change="onChange_enableServerMachineStats">
 						<template #label>{{ i18n.ts.enableServerMachineStats }}</template>
 						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
 					</MkSwitch>
 				</div>
 
 				<div class="_panel" style="padding: 16px;">
-					<MkSwitch v-model="enableIdenticonGeneration">
+					<MkSwitch v-model="enableIdenticonGeneration" @change="onChange_enableIdenticonGeneration">
 						<template #label>{{ i18n.ts.enableIdenticonGeneration }}</template>
 						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
 					</MkSwitch>
 				</div>
 
 				<div class="_panel" style="padding: 16px;">
-					<MkSwitch v-model="enableChartsForRemoteUser">
+					<MkSwitch v-model="enableChartsForRemoteUser" @change="onChange_enableChartsForRemoteUser">
 						<template #label>{{ i18n.ts.enableChartsForRemoteUser }}</template>
 						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
 					</MkSwitch>
 				</div>
 
 				<div class="_panel" style="padding: 16px;">
-					<MkSwitch v-model="enableChartsForFederatedInstances">
+					<MkSwitch v-model="enableChartsForFederatedInstances" @change="onChange_enableChartsForFederatedInstances">
 						<template #label>{{ i18n.ts.enableChartsForFederatedInstances }}</template>
 						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
 					</MkSwitch>
@@ -42,6 +42,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<template #label>Misskey® Fan-out Timeline Technology™ (FTT)</template>
 					<template v-if="enableFanoutTimeline" #suffix>Enabled</template>
 					<template v-else #suffix>Disabled</template>
+					<template v-if="isFttModified" #footer>
+						<MkButton primary rounded @click="saveFtt">{{ i18n.ts.save }}</MkButton>
+					</template>
 
 					<div class="_gaps_m">
 						<MkSwitch v-model="enableFanoutTimeline">
@@ -77,9 +80,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 				<MkFolder :defaultOpen="true">
 					<template #icon><i class="ti ti-bolt"></i></template>
-					<template #label>Misskey® Reactions Buffering Technology™ (RBT)<span class="_beta">{{ i18n.ts.beta }}</span></template>
+					<template #label>Misskey® Reactions Boost Technology™ (RBT)<span class="_beta">{{ i18n.ts.beta }}</span></template>
 					<template v-if="enableReactionsBuffering" #suffix>Enabled</template>
 					<template v-else #suffix>Disabled</template>
+					<template v-if="isRbtModified" #footer>
+						<MkButton primary rounded @click="saveRbt">{{ i18n.ts.save }}</MkButton>
+					</template>
 
 					<div class="_gaps_m">
 						<MkSwitch v-model="enableReactionsBuffering">
@@ -95,7 +101,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import XHeader from './_header_.vue';
 import FormSuspense from '@/components/form/suspense.vue';
 import * as os from '@/os.js';
@@ -107,6 +113,7 @@ import MkSwitch from '@/components/MkSwitch.vue';
 import MkFolder from '@/components/MkFolder.vue';
 import MkInput from '@/components/MkInput.vue';
 import MkLink from '@/components/MkLink.vue';
+import MkButton from '@/components/MkButton.vue';
 
 const enableServerMachineStats = ref<boolean>(false);
 const enableIdenticonGeneration = ref<boolean>(false);
@@ -119,6 +126,10 @@ const perRemoteUserUserTimelineCacheMax = ref<number>(0);
 const perUserHomeTimelineCacheMax = ref<number>(0);
 const perUserListTimelineCacheMax = ref<number>(0);
 const enableReactionsBuffering = ref<boolean>(false);
+
+const isFttModified = ref<boolean>(false);
+
+const isRbtModified = ref<boolean>(false);
 
 async function init() {
 	const meta = await misskeyApi('admin/meta');
@@ -133,32 +144,72 @@ async function init() {
 	perUserHomeTimelineCacheMax.value = meta.perUserHomeTimelineCacheMax;
 	perUserListTimelineCacheMax.value = meta.perUserListTimelineCacheMax;
 	enableReactionsBuffering.value = meta.enableReactionsBuffering;
+
+	watch([enableFanoutTimeline, enableFanoutTimelineDbFallback, perLocalUserUserTimelineCacheMax, perRemoteUserUserTimelineCacheMax, perUserHomeTimelineCacheMax, perUserListTimelineCacheMax], () => {
+		isFttModified.value = true;
+	});
+
+	watch(enableReactionsBuffering, () => {
+		isRbtModified.value = true;
+	});
 }
 
-function save() {
+function onChange_enableServerMachineStats(value: boolean) {
 	os.apiWithDialog('admin/update-meta', {
-		enableServerMachineStats: enableServerMachineStats.value,
-		enableIdenticonGeneration: enableIdenticonGeneration.value,
-		enableChartsForRemoteUser: enableChartsForRemoteUser.value,
-		enableChartsForFederatedInstances: enableChartsForFederatedInstances.value,
+		enableServerMachineStats: value,
+	}).then(() => {
+		fetchInstance(true);
+	});
+}
+
+function onChange_enableIdenticonGeneration(value: boolean) {
+	os.apiWithDialog('admin/update-meta', {
+		enableIdenticonGeneration: value,
+	}).then(() => {
+		fetchInstance(true);
+	});
+}
+
+function onChange_enableChartsForRemoteUser(value: boolean) {
+	os.apiWithDialog('admin/update-meta', {
+		enableChartsForRemoteUser: value,
+	}).then(() => {
+		fetchInstance(true);
+	});
+}
+
+function onChange_enableChartsForFederatedInstances(value: boolean) {
+	os.apiWithDialog('admin/update-meta', {
+		enableChartsForFederatedInstances: value,
+	}).then(() => {
+		fetchInstance(true);
+	});
+}
+
+function saveFtt() {
+	os.apiWithDialog('admin/update-meta', {
 		enableFanoutTimeline: enableFanoutTimeline.value,
 		enableFanoutTimelineDbFallback: enableFanoutTimelineDbFallback.value,
 		perLocalUserUserTimelineCacheMax: perLocalUserUserTimelineCacheMax.value,
 		perRemoteUserUserTimelineCacheMax: perRemoteUserUserTimelineCacheMax.value,
 		perUserHomeTimelineCacheMax: perUserHomeTimelineCacheMax.value,
 		perUserListTimelineCacheMax: perUserListTimelineCacheMax.value,
-		enableReactionsBuffering: enableReactionsBuffering.value,
 	}).then(() => {
+		isFttModified.value = false;
 		fetchInstance(true);
 	});
 }
 
-const headerActions = computed(() => [{
-	asFullButton: true,
-	icon: 'ti ti-check',
-	text: i18n.ts.save,
-	handler: save,
-}]);
+function saveRbt() {
+	os.apiWithDialog('admin/update-meta', {
+		enableReactionsBuffering: enableReactionsBuffering.value,
+	}).then(() => {
+		isRbtModified.value = false;
+		fetchInstance(true);
+	});
+}
+
+const headerActions = computed(() => []);
 
 const headerTabs = computed(() => []);
 
