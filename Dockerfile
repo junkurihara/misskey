@@ -1,10 +1,5 @@
 # syntax = docker/dockerfile:1.4
-<<<<<<< HEAD
 ARG NODE_VERSION=22
-=======
-
-ARG NODE_VERSION=22.11.0-bookworm
->>>>>>> 2025.3.0
 
 # build assets & compile TypeScript
 
