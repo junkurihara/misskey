@@ -193,7 +193,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, ref, useTemplateRef, watch, provide, shallowRef, reactive } from 'vue';
+import { computed, inject, onMounted, ref, useTemplateRef, provide } from 'vue';
 import * as mfm from 'mfm-js';
 import * as Misskey from 'misskey-js';
 import { isLink } from '@@/js/is-link.js';
@@ -265,30 +265,28 @@ const currentClip = inject<Ref<Misskey.entities.Clip> | null>('currentClip', nul
 
 let note = deepClone(props.note);
 
-// plugin
-const noteViewInterruptors = getPluginHandlers('note_view_interruptor');
-if (noteViewInterruptors.length > 0) {
-	onMounted(async () => {
-		let result: Misskey.entities.Note | null = deepClone(note);
-		for (const interruptor of noteViewInterruptors) {
-			try {
-				result = await interruptor.handler(result!) as Misskey.entities.Note | null;
-			} catch (err) {
-				console.error(err);
-			}
-		}
-		note = result as Misskey.entities.Note;
-	});
-}
+// コンポーネント初期化に非同期的な処理を行うとTransitionのレンダリングがバグるため同期的に実行できるメソッドが実装されるのを待つ必要がある
+// https://github.com/aiscript-dev/aiscript/issues/937
+//// plugin
+//const noteViewInterruptors = getPluginHandlers('note_view_interruptor');
+//if (noteViewInterruptors.length > 0) {
+//	let result: Misskey.entities.Note | null = deepClone(note);
+//	for (const interruptor of noteViewInterruptors) {
+//		try {
+//			result = await interruptor.handler(result!) as Misskey.entities.Note | null;
+//		} catch (err) {
+//			console.error(err);
+//		}
+//	}
+//	note = result as Misskey.entities.Note;
+//}
 
 const isRenote = Misskey.note.isPureRenote(note);
 const appearNote = getAppearNote(note);
-const $appearNote = reactive({
-	reactions: appearNote.reactions,
-	reactionCount: appearNote.reactionCount,
-	reactionEmojis: appearNote.reactionEmojis,
-	myReaction: appearNote.myReaction,
-	pollChoices: appearNote.poll?.choices,
+const { $note: $appearNote, subscribe: subscribeManuallyToNoteCapture } = useNoteCapture({
+	note: appearNote,
+	parentNote: note,
+	mock: props.mock,
 });
 
 const rootEl = useTemplateRef('rootEl');
@@ -409,17 +407,6 @@ provide(DI.mfmEmojiReactCallback, (reaction) => {
 		});
 	});
 });
-
-let subscribeManuallyToNoteCapture: () => void = () => { };
-
-if (!props.mock) {
-	const { subscribe } = useNoteCapture({
-		note: appearNote,
-		parentNote: note,
-		$note: $appearNote,
-	});
-	subscribeManuallyToNoteCapture = subscribe;
-}
 
 if (!props.mock) {
 	useTooltip(renoteButton, async (showing) => {

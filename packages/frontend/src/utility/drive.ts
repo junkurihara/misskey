@@ -6,6 +6,7 @@
 import { defineAsyncComponent } from 'vue';
 import * as Misskey from 'misskey-js';
 import { apiUrl } from '@@/js/config.js';
+import type { UploaderFeatures } from '@/composables/use-uploader.js';
 import * as os from '@/os.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
 import { useStream } from '@/stream.js';
@@ -15,6 +16,7 @@ import { $i } from '@/i.js';
 import { instance } from '@/instance.js';
 import { globalEvents } from '@/events.js';
 import { getProxiedImageUrl } from '@/utility/media-proxy.js';
+import { genId } from '@/utility/id.js';
 
 type UploadReturnType = {
 	filePromise: Promise<Misskey.entities.DriveFile>;
@@ -30,6 +32,7 @@ export class UploadAbortedError extends Error {
 export function uploadFile(file: File | Blob, options: {
 	name?: string;
 	folderId?: string | null;
+	isSensitive?: boolean;
 	onProgress?: (ctx: { total: number; loaded: number; }) => void;
 } = {}): UploadReturnType {
 	const xhr = new XMLHttpRequest();
@@ -38,6 +41,23 @@ export function uploadFile(file: File | Blob, options: {
 
 	const filePromise = new Promise<Misskey.entities.DriveFile>((resolve, reject) => {
 		if ($i == null) return reject();
+
+		// こっち側で検出するMIME typeとサーバーで検出するMIME typeは異なる場合があるため、こっち側ではやらないことにする
+		// https://github.com/misskey-dev/misskey/issues/16091
+		//const allowedMimeTypes = $i.policies.uploadableFileTypes;
+		//const isAllowedMimeType = allowedMimeTypes.some(mimeType => {
+		//	if (mimeType === '*' || mimeType === '*/*') return true;
+		//	if (mimeType.endsWith('/*')) return file.type.startsWith(mimeType.slice(0, -1));
+		//	return file.type === mimeType;
+		//});
+		//if (!isAllowedMimeType) {
+		//	os.alert({
+		//		type: 'error',
+		//		title: i18n.ts.failedToUpload,
+		//		text: i18n.ts.cannotUploadBecauseUnallowedFileType,
+		//	});
+		//	return reject();
+		//}
 
 		if ((file.size > instance.maxFileSize) || (file.size > ($i.policies.maxFileSizeMb * 1024 * 1024))) {
 			os.alert({
@@ -74,6 +94,12 @@ export function uploadFile(file: File | Blob, options: {
 							type: 'error',
 							title: i18n.ts.failedToUpload,
 							text: i18n.ts.cannotUploadBecauseNoFreeSpace,
+						});
+					} else if (res.error?.id === '4becd248-7f2c-48c4-a9f0-75edc4f9a1ea') {
+						os.alert({
+							type: 'error',
+							title: i18n.ts.failedToUpload,
+							text: i18n.ts.cannotUploadBecauseUnallowedFileType,
 						});
 					} else {
 						os.alert({
@@ -115,6 +141,7 @@ export function uploadFile(file: File | Blob, options: {
 		formData.append('force', 'true');
 		formData.append('file', file);
 		formData.append('name', options.name ?? (file instanceof File ? file.name : 'untitled'));
+		formData.append('isSensitive', options.isSensitive ? 'true' : 'false');
 		if (options.folderId) formData.append('folderId', options.folderId);
 
 		xhr.send(formData);
@@ -131,6 +158,7 @@ export function uploadFile(file: File | Blob, options: {
 export function chooseFileFromPcAndUpload(
 	options: {
 		multiple?: boolean;
+		features?: UploaderFeatures;
 		folderId?: string | null;
 	} = {},
 ): Promise<Misskey.entities.DriveFile[]> {
@@ -139,6 +167,7 @@ export function chooseFileFromPcAndUpload(
 			if (files.length === 0) return;
 			os.launchUploader(files, {
 				folderId: options.folderId,
+				features: options.features,
 			}).then(driveFiles => {
 				res(driveFiles);
 			});
@@ -149,8 +178,8 @@ export function chooseFileFromPcAndUpload(
 export function chooseDriveFile(options: {
 	multiple?: boolean;
 } = {}): Promise<Misskey.entities.DriveFile[]> {
-	return new Promise(resolve => {
-		const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkDriveFileSelectDialog.vue')), {
+	return new Promise(async resolve => {
+		const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkDriveFileSelectDialog.vue').then(x => x.default), {
 			multiple: options.multiple ?? false,
 		}, {
 			done: files => {
@@ -170,9 +199,9 @@ export function chooseFileFromUrl(): Promise<Misskey.entities.DriveFile> {
 			type: 'url',
 			placeholder: i18n.ts.uploadFromUrlDescription,
 		}).then(({ canceled, result: url }) => {
-			if (canceled) return;
+			if (canceled || url == null) return;
 
-			const marker = Math.random().toString(); // TODO: UUIDとか使う
+			const marker = genId();
 
 			// TODO: no websocketモード対応
 			const connection = useStream().useChannel('main');
@@ -197,7 +226,7 @@ export function chooseFileFromUrl(): Promise<Misskey.entities.DriveFile> {
 	});
 }
 
-function select(src: HTMLElement | EventTarget | null, label: string | null, multiple: boolean): Promise<Misskey.entities.DriveFile[]> {
+function select(anchorElement: HTMLElement | EventTarget | null, label: string | null, multiple: boolean, features?: UploaderDialogFeatures): Promise<Misskey.entities.DriveFile[]> {
 	return new Promise((res, rej) => {
 		os.popupMenu([label ? {
 			text: label,
@@ -205,7 +234,7 @@ function select(src: HTMLElement | EventTarget | null, label: string | null, mul
 		} : undefined, {
 			text: i18n.ts.upload,
 			icon: 'ti ti-upload',
-			action: () => chooseFileFromPcAndUpload({ multiple }).then(files => res(files)),
+			action: () => chooseFileFromPcAndUpload({ multiple, features }).then(files => res(files)),
 		}, {
 			text: i18n.ts.fromDrive,
 			icon: 'ti ti-cloud',
@@ -214,16 +243,23 @@ function select(src: HTMLElement | EventTarget | null, label: string | null, mul
 			text: i18n.ts.fromUrl,
 			icon: 'ti ti-link',
 			action: () => chooseFileFromUrl().then(file => res([file])),
-		}], src);
+		}], anchorElement);
 	});
 }
 
-export function selectFile(src: HTMLElement | EventTarget | null, label: string | null = null): Promise<Misskey.entities.DriveFile> {
-	return select(src, label, false).then(files => files[0]);
-}
+type SelectFileOptions<M extends boolean> = {
+	anchorElement: HTMLElement | EventTarget | null;
+	multiple: M;
+	label?: string | null;
+	features?: UploaderDialogFeatures;
+};
 
-export function selectFiles(src: HTMLElement | EventTarget | null, label: string | null = null): Promise<Misskey.entities.DriveFile[]> {
-	return select(src, label, true);
+export async function selectFile<
+	M extends boolean,
+	MR extends M extends true ? Misskey.entities.DriveFile[] : Misskey.entities.DriveFile,
+>(opts: SelectFileOptions<M>): Promise<MR> {
+	const files = await select(opts.anchorElement, opts.label ?? null, opts.multiple ?? false, opts.features);
+	return opts.multiple ? (files as MR) : (files[0]! as MR);
 }
 
 export async function createCroppedImageDriveFileFromImageDriveFile(imageDriveFile: Misskey.entities.DriveFile, options: {
@@ -263,8 +299,8 @@ export async function createCroppedImageDriveFileFromImageDriveFile(imageDriveFi
 }
 
 export async function selectDriveFolder(initialFolder: Misskey.entities.DriveFolder['id'] | null): Promise<Misskey.entities.DriveFolder[]> {
-	return new Promise(resolve => {
-		const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkDriveFolderSelectDialog.vue')), {
+	return new Promise(async resolve => {
+		const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkDriveFolderSelectDialog.vue').then(x => x.default), {
 			initialFolder,
 		}, {
 			done: folders => {
